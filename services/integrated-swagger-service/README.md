@@ -22,7 +22,7 @@
 
 ## 📁 디렉토리 구조
 
-```
+```text
 api-dashboard-service/
 ├── app/
 │   ├── __init__.py
@@ -89,23 +89,26 @@ kubectl apply -f ../k8s/api-dashboard/
 
 ## 🌐 접근 방법
 
-- **API 문서**: http://localhost:8000/docs
-- **대시보드 UI**: http://localhost:8080
-- **헬스체크**: http://localhost:8000/health
-- **메트릭**: http://localhost:8000/metrics
+- **API 문서**: [http://localhost:8000/docs]
+- **대시보드 UI**: [http://localhost:8080]
+- **헬스체크**: [http://localhost:8000/health]
+- **메트릭**: [http://localhost:8000/metrics]
 
 ## 📊 API 엔드포인트
 
 ### 대시보드 API
+
 - `GET /api/v1/dashboard/services` - 모든 서비스 상태 조회
 - `GET /api/v1/dashboard/overview` - 대시보드 개요 정보
 
 ### 서비스 모니터링 API
+
 - `GET /api/v1/services` - 모니터링 대상 서비스 목록
 - `GET /api/v1/services/{service_name}/status` - 특정 서비스 상태
 - `GET /api/v1/services/{service_name}/health` - 특정 서비스 헬스체크
 
 ### 메트릭 API
+
 - `GET /api/v1/metrics/overview` - 전체 메트릭 개요
 - `GET /api/v1/metrics/{service_name}` - 특정 서비스 메트릭
 

@@ -4,7 +4,7 @@
 
 ## 📁 프로젝트 구조
 
-```
+```text
 realtime-service/
 ├── app/
 │   ├── __init__.py
@@ -46,17 +46,20 @@ realtime-service/
 ## ⚙️ 설치 및 실행
 
 ### 1. 📦 의존성 설치
+
 ```bash
 pip install -r requirements.txt
 ```
 
 ### 2. 🔧 환경 변수 설정
+
 ```bash
 cp env.example .env
 # .env 파일을 편집하여 필요한 설정을 변경
 ```
 
 ### 3. ▶️ 애플리케이션 실행
+
 ```bash
 # 개발 모드
 python -m app.main
@@ -66,6 +69,7 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 ### 4. 🐳 Docker 실행
+
 ```bash
 docker build -t realtime-service .
 docker run -p 8000:8000 --env-file .env realtime-service
@@ -74,18 +78,22 @@ docker run -p 8000:8000 --env-file .env realtime-service
 ## 🔌 API 엔드포인트
 
 ### 실시간 온도 데이터 조회
+
 - `GET /api/v1/realtime/` - 전체 온도 데이터 조회 (임계치 검사 포함)
 
 ### 다이나믹 필터링
+
 - `GET /api/v1/realtime/factory/{factory}` - 공장별 온도 데이터 조회
 - `GET /api/v1/realtime/building/{building}` - 건물별 온도 데이터 조회
 - `GET /api/v1/realtime/floor/{floor}` - 층별 온도 데이터 조회
 - `GET /api/v1/realtime/loc_id/{loc_id}` - 위치 ID별 온도 데이터 조회
 
 ### 다중 필터 조회
+
 - `GET /api/v1/realtime/location?factory=...&building=...&floor=...&loc_id=...` - 위치 조건별 온도 데이터 조회 (다중 필터 지원)
 
 ### 응답 구조
+
 ```json
 {
   "capture_dt": "2025-09-12T05:59:38.837000Z",
@@ -122,10 +130,12 @@ docker run -p 8000:8000 --env-file .env realtime-service
 ## 🔗 외부 서비스 연동
 
 ### Location Service
+
 - 센서 위치 정보 조회
 - 위치별 센서 그룹핑
 
-### Thresholds Service  
+### Thresholds Service
+
 - 임계치 정보 조회
 - 센서 타입별 임계치 매핑
 - 알림 레벨 결정
@@ -133,16 +143,19 @@ docker run -p 8000:8000 --env-file .env realtime-service
 ## 📊 데이터 모델
 
 ### TemperatureCurrentData
+
 - `capture_dt`: 측정 시간
 - `ymd`: 년월일 (YYYYMMDD)
 - `hh`: 시간 (HH)
 - `measurements`: 측정 데이터 목록
 
 ### MeasurementData
+
 - `location`: 위치 정보 (LocationInfo)
 - `metrics`: 측정값들 (MetricsData)
 
 ### LocationInfo
+
 - `factory`: 공장명
 - `building`: 건물명
 - `floor`: 층수
@@ -150,23 +163,27 @@ docker run -p 8000:8000 --env-file .env realtime-service
 - `area`: 구역
 
 ### MetricsData
+
 - `temperature`: 온도 데이터 (MetricData)
 - `humidity`: 습도 데이터 (MetricData)
 - `pcv_temperature`: PCV 온도 데이터 (MetricData)
 
 ### MetricData
+
 - `value`: 측정값 (Decimal)
 - `status`: 상태 ("normal", "warning", "critical", null)
 
 ## 🚨 임계치 기반 상태 시스템
 
 ### 상태 레벨
+
 - `normal` - 정상 상태
 - `warning` - 경고 상태 (임계치 초과)
 - `critical` - 위험 상태 (심각한 임계치 초과)
 - `null` - 임계치 정보 없음
 
 ### 임계치 검사
+
 - 센서 타입별 임계치 매핑 (temperature, humidity, pcv_temperature)
 - 실시간 임계치 범위 검사
 - 우선순위 기반 상태 결정 (critical > warning > normal)
@@ -175,9 +192,10 @@ docker run -p 8000:8000 --env-file .env realtime-service
 ## 🔧 설정
 
 ### 환경 변수
+
 - `DATABASE_URL` - PostgreSQL/TimescaleDB 연결 URL
-- `LOCATION_SERVICE_URL` - Location 서비스 URL (기본값: http://location-service:80)
-- `THRESHOLDS_SERVICE_URL` - Thresholds 서비스 URL (기본값: http://thresholds-service:80)
+- `LOCATION_SERVICE_URL` - Location 서비스 URL (기본값: [http://location-service:80])
+- `THRESHOLDS_SERVICE_URL` - Thresholds 서비스 URL (기본값: [http://thresholds-service:80])
 - `DEBUG` - 디버그 모드 (기본값: false)
 - `LOG_LEVEL` - 로그 레벨 (기본값: INFO)
 - `CORS_ORIGINS` - CORS 허용 오리진 (기본값: ["*"])
@@ -201,20 +219,24 @@ pytest --cov=app
 ## 📝 개발 가이드
 
 ### 새로운 필터 조건 추가
+
 1. `temperature_service.py`의 `_get_temperature_data_with_filters` 메서드에 필터 파라미터 추가
 2. `realtime.py`에 새로운 엔드포인트 추가
 3. 필터링 로직에서 조건 확인 부분 추가
 
 ### 새로운 측정값 타입 추가
+
 1. `schemas.py`의 `MetricsData` 모델에 새 필드 추가
 2. `temperature_service.py`의 `_process_measurement_data` 메서드에서 새 측정값 처리 로직 추가
 3. `thresholds_client.py`의 매핑 테이블 업데이트
 
 ### 외부 서비스 연동
+
 1. `clients/` 디렉토리에 새 클라이언트 추가
 2. `config.py`에 서비스 URL 설정 추가
 3. `temperature_service.py`에서 클라이언트 사용
 
 ### 임계치 레벨 추가
+
 1. `thresholds-service`의 `Level` enum에 새 레벨 추가
 2. `temperature_service.py`의 `_check_thresholds` 메서드에서 레벨 매핑 업데이트
