@@ -1,110 +1,116 @@
-# flet_montrg MSA 확장 제안서
+# flet_montrg MSA Extension Proposal
 
-## 📋 현재 상황 분석
+## 📋 Current Situation Analysis
 
-### 기존 서비스 구조 및 포트 할당
-- ✅ **thresholds-service** (포트 30001): 임계치 CRUD 관리
-- ✅ **location-service** (포트 30002): 위치 및 센서 정보 관리
-- ✅ **realtime-service** (포트 30003): 실시간 데이터 조회 (thresholds, location 의존)
-- ✅ **aggregation-service** (포트 30004): 기간별 집계 데이터 조회
-- ✅ **integrated-swagger-service** (포트 30005): 통합 API 문서
+### Existing Service Structure and Port Allocation
 
-### 사용 가능한 포트
-- **30006**: alert-service (예정)
-- **30007**: alert-subscription-service (예정)
-- **30008**: alert-notification-service (예정)
-- **30009**: sensor-threshold-mapping-service (예정)
-- **30010**: alert-evaluation-service (예정, 내부 서비스 - 외부 노출 불필요)
-- **30011+**: 향후 확장용
+- ✅ **thresholds-service** (Port 30001): Threshold CRUD management
+- ✅ **location-service** (Port 30002): Location and sensor information management
+- ✅ **realtime-service** (Port 30003): Real-time data query (depends on thresholds, location)
+- ✅ **aggregation-service** (Port 30004): Period-based aggregated data query
+- ✅ **integrated-swagger-service** (Port 30005): Integrated API documentation
 
-### 새로운 요구사항 (ERD 기반)
-- 📊 **alerts**: 알람 발생 이력 저장
-- 📧 **alert_subscriptions**: 알람 구독 관리 (factory/building/floor/area 레벨)
-- 📨 **alert_notifications**: 메일 발송 이력
-- 🔗 **sensor_threshold_map**: 센서별 임계치 매핑
+### Available Ports
+
+- **30006**: alert-service (planned)
+- **30007**: alert-subscription-service (planned)
+- **30008**: alert-notification-service (planned)
+- **30009**: sensor-threshold-mapping-service (planned)
+- **30010**: alert-evaluation-service (planned, internal service - no external exposure needed)
+- **30011+**: For future expansion
+
+### New Requirements (Based on ERD)
+
+- 📊 **alerts**: Store alert occurrence history
+- 📧 **alert_subscriptions**: Alert subscription management (factory/building/floor/area levels)
+- 📨 **alert_notifications**: Email delivery history
+- 🔗 **sensor_threshold_map**: Sensor-specific threshold mapping
 
 ---
 
-## 🏗️ MSA 확장 아키텍처
+## 🏗️ MSA Extension Architecture
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────┐
-│                    Alert Domain Services                     │
+│                    Alert Domain Services                    │
 └─────────────────────────────────────────────────────────────┘
 
-1. alert-service (알람 생성 및 관리)
-   ├── 책임: 알람 생성, 조회, 상태 관리
-   ├── 데이터: alerts 테이블
-   ├── 의존성: 
-   │   ├── thresholds-service (임계치 정보)
-   │   ├── location-service (위치 정보)
-   │   └── sensor-threshold-mapping-service (매핑 정보)
-   └── 포트: 30006
+1. alert-service (Alert creation and management)
+   ├── Responsibility: Alert creation, query, status management
+   ├── Data: alerts table
+   ├── Dependencies: 
+   │   ├── thresholds-service (threshold information)
+   │   ├── location-service (location information)
+   │   └── sensor-threshold-mapping-service (mapping information)
+   └── Port: 30006
 
-2. alert-subscription-service (구독 관리)
-   ├── 책임: 구독 CRUD, 구독자별 필터링
-   ├── 데이터: alert_subscriptions 테이블
-   ├── 의존성: location-service (위치 계층 구조)
-   └── 포트: 30007
+2. alert-subscription-service (Subscription management)
+   ├── Responsibility: Subscription CRUD, subscriber filtering
+   ├── Data: alert_subscriptions table
+   ├── Dependencies: location-service (location hierarchy)
+   └── Port: 30007
 
-3. alert-notification-service (알림 발송)
-   ├── 책임: 알림 발송, 발송 이력 관리
-   ├── 데이터: alert_notifications 테이블
-   ├── 의존성:
-   │   ├── alert-service (알람 정보)
-   │   └── alert-subscription-service (구독 정보)
-   └── 포트: 30008
+3. alert-notification-service (Notification delivery)
+   ├── Responsibility: Notification delivery, delivery history management
+   ├── Data: alert_notifications table
+   ├── Dependencies:
+   │   ├── alert-service (alert information)
+   │   └── alert-subscription-service (subscription information)
+   └── Port: 30008
 
-4. sensor-threshold-mapping-service (센서-임계치 매핑)
-   ├── 책임: 센서별 임계치 매핑 관리
-   ├── 데이터: sensor_threshold_map 테이블
-   ├── 의존성:
-   │   ├── thresholds-service (임계치 정보)
-   │   └── location-service (센서 정보)
-   └── 포트: 30009
+4. sensor-threshold-mapping-service (Sensor-threshold mapping)
+   ├── Responsibility: Sensor-specific threshold mapping management
+   ├── Data: sensor_threshold_map table
+   ├── Dependencies:
+   │   ├── thresholds-service (threshold information)
+   │   └── location-service (sensor information)
+   └── Port: 30009
 
-5. alert-evaluation-service (임계치 검증 워커) ⭐ NEW
-   ├── 책임: 백그라운드에서 지속적으로 임계치 초과 감지
-   ├── 데이터: (읽기 전용) temperature_raw
-   ├── 실행 방식: 
-   │   ├── 스케줄러 기반 (주기적 실행, 예: 1분마다)
-   │   └── 또는 이벤트 기반 (ETL 완료 후 트리거)
-   ├── 의존성:
-   │   ├── sensor-threshold-mapping-service (매핑 정보)
-   │   ├── thresholds-service (임계치 정보)
-   │   ├── location-service (위치 정보)
-   │   └── alert-service (알람 생성)
-   └── 포트: 30010 (내부 서비스, 외부 노출 불필요)
+5. alert-evaluation-service (Threshold validation worker) ⭐ NEW
+   ├── Responsibility: Continuously detect threshold violations in background
+   ├── Data: (read-only) temperature_raw
+   ├── Execution method: 
+   │   ├── Scheduler-based (periodic execution, e.g., every 1 minute)
+   │   └── Or event-based (triggered after ETL completion)
+   ├── Dependencies:
+   │   ├── sensor-threshold-mapping-service (mapping information)
+   │   ├── thresholds-service (threshold information)
+   │   ├── location-service (location information)
+   │   └── alert-service (alert creation)
+   └── Port: 30010 (internal service, no external exposure needed)
 ```
 
 ---
 
-## 🎯 세분화 + alert-evaluation-service
+## 🎯 Segmentation + alert-evaluation-service
 
-### 이유
-1. **단일 책임 원칙**: 각 서비스가 명확한 책임
-2. **독립적 확장**: 알림 발송량이 많을 경우 notification-service만 스케일
-3. **장애 격리**: 구독 관리 문제가 알림 발송에 영향 없음
-4. **팀 분리**: 각 서비스를 다른 팀이 담당 가능
-5. **실시간 감지**: API 호출과 무관하게 백그라운드에서 지속적으로 임계치 검증 ⭐
+### Rationale
+
+1. **Single Responsibility Principle**: Each service has clear responsibility
+2. **Independent Scaling**: Scale only notification-service when notification volume is high
+3. **Fault Isolation**: Subscription management issues don't affect notification delivery
+4. **Team Separation**: Each service can be managed by different teams
+5. **Real-time Detection**: Continuous threshold validation in background independent of API calls ⭐
 
 ---
 
-## 📐 서비스별 상세 설계
+## 📐 Detailed Service Design
 
 ### 1. alert-service
 
-**API 엔드포인트:**
-```
-POST   /api/v1/alerts                    # 알람 생성
-GET    /api/v1/alerts                    # 알람 목록 조회
-GET    /api/v1/alerts/{alert_id}         # 알람 상세 조회
-GET    /api/v1/alerts/by-sensor/{sensor_id}  # 센서별 알람 조회
-GET    /api/v1/alerts/by-location/{loc_id}   # 위치별 알람 조회
-PUT    /api/v1/alerts/{alert_id}/resolve # 알람 해결 처리
+**API Endpoints:**
+
+```bash
+POST   /api/v1/alerts                    # Create alert
+GET    /api/v1/alerts                    # Query alert list
+GET    /api/v1/alerts/{alert_id}         # Query alert details
+GET    /api/v1/alerts/by-sensor/{sensor_id}  # Query alerts by sensor
+GET    /api/v1/alerts/by-location/{loc_id}   # Query alerts by location
+PUT    /api/v1/alerts/{alert_id}/resolve # Resolve alert
 ```
 
 **서비스 간 통신:**
+
 ```python
 # sensor-threshold-mapping-service 호출
 GET /api/v1/mappings/sensor/{sensor_id}
@@ -120,6 +126,7 @@ GET /api/v1/location/{sensor_id}
 ```
 
 **알람 생성 로직:**
+
 ```python
 # ❌ 기존 방식 (비권장): realtime-service API 호출 시마다 체크
 # ✅ 새로운 방식: alert-evaluation-service가 백그라운드에서 지속적으로 검증
@@ -155,7 +162,8 @@ async def evaluate_thresholds():
 ### 2. alert-subscription-service
 
 **API 엔드포인트:**
-```
+
+```bash
 POST   /api/v1/subscriptions             # 구독 생성
 GET    /api/v1/subscriptions             # 구독 목록 조회
 GET    /api/v1/subscriptions/{subscription_id}  # 구독 상세
@@ -171,6 +179,7 @@ GET    /api/v1/subscriptions/match       # 위치 매칭 구독 조회
 ```
 
 **위치 매칭 로직:**
+
 ```python
 # factory만 지정 → 해당 factory 전체 구독
 GET /api/v1/subscriptions/match?factory=SinPyeong
@@ -186,6 +195,7 @@ GET /api/v1/subscriptions/match?factory=SinPyeong&building=F-2001&floor=1&area=�
 ```
 
 **매칭 알고리즘:**
+
 ```sql
 -- 구독 조건이 알람 위치와 매칭되는지 확인
 SELECT * FROM alert_subscriptions
@@ -206,7 +216,8 @@ WHERE enabled = true
 ### 3. alert-notification-service
 
 **API 엔드포인트:**
-```
+
+```bash
 POST   /api/v1/notifications/send        # 알림 발송 요청
 GET    /api/v1/notifications             # 발송 이력 조회
 GET    /api/v1/notifications/{notification_id}  # 발송 상세
@@ -215,6 +226,7 @@ PUT    /api/v1/notifications/{notification_id}/retry  # 재시도
 ```
 
 **서비스 간 통신:**
+
 ```python
 # alert-service 호출
 GET /api/v1/alerts/{alert_id}
@@ -226,7 +238,8 @@ GET /api/v1/subscriptions/match?factory=...&building=...
 ```
 
 **알림 발송 플로우:**
-```
+
+```bash
 1. alert-service에서 알람 생성
 2. alert-service가 notification-service에 발송 요청
    POST /api/v1/notifications/send
@@ -243,7 +256,8 @@ GET /api/v1/subscriptions/match?factory=...&building=...
 ### 4. sensor-threshold-mapping-service
 
 **API 엔드포인트:**
-```
+
+```bash
 POST   /api/v1/mappings                 # 매핑 생성
 GET    /api/v1/mappings                 # 매핑 목록 조회
 GET    /api/v1/mappings/sensor/{sensor_id}  # 센서별 매핑 조회
@@ -254,6 +268,7 @@ GET    /api/v1/mappings/active/sensor/{sensor_id}  # 활성 매핑 조회
 ```
 
 **서비스 간 통신:**
+
 ```python
 # thresholds-service 호출
 GET /api/v1/thresholds/{threshold_id}
@@ -265,6 +280,7 @@ GET /api/v1/location/{sensor_id}
 ```
 
 **활성 매핑 조회 로직:**
+
 ```sql
 SELECT * FROM sensor_threshold_map
 WHERE sensor_id = :sensor_id
@@ -275,6 +291,7 @@ ORDER BY threshold_id
 ```
 
 **스키마 수정 사항:**
+
 ```sql
 -- ❌ 기존 (시간 단위만 표현 가능)
 duration_hours int4 DEFAULT 1 NOT NULL
@@ -291,6 +308,7 @@ duration_seconds int4 DEFAULT 60 NOT NULL  -- 기본값: 60초 (1분)
 ```
 
 **duration_seconds의 의미:**
+
 - 임계치 초과가 **지속되어야 알람을 발생시킬 최소 시간** (초 단위)
 - 예: `duration_seconds = 300` (5분)인 경우, 임계치 초과가 5분 이상 지속되어야 알람 발생
 - 중복 알람 방지 및 노이즈 필터링에 사용
@@ -300,17 +318,20 @@ duration_seconds int4 DEFAULT 60 NOT NULL  -- 기본값: 60초 (1분)
 ### 5. alert-evaluation-service (임계치 검증 워커)
 
 **역할:**
+
 - 백그라운드에서 지속적으로 temperature_raw 데이터를 스캔
 - 센서별 임계치 초과 여부 검증
 - 임계치 초과 시 alert-service에 알람 생성 요청
 
 **실행 방식:**
+
 - **스케줄러 기반**: APScheduler 또는 Celery Beat 사용
 - **실행 주기**: 1분마다 (설정 가능)
 - **중복 실행 방지**: max_instances=1
 
 **API 엔드포인트 (선택사항 - 모니터링용):**
-```
+
+```bash
 GET    /health                    # 헬스체크
 GET    /status                    # 워커 상태 조회
 POST   /evaluate/trigger          # 수동 트리거 (테스트용)
@@ -318,6 +339,7 @@ GET    /metrics                   # 메트릭 (처리된 레코드 수 등)
 ```
 
 **서비스 간 통신:**
+
 ```python
 # sensor-threshold-mapping-service 호출
 GET /api/v1/mappings/active/sensor/{sensor_id}
@@ -337,6 +359,7 @@ POST /api/v1/alerts
 ```
 
 **핵심 로직:**
+
 ```python
 async def evaluate_thresholds():
     """임계치 검증 메인 로직"""
@@ -392,6 +415,7 @@ async def evaluate_thresholds():
 ```
 
 **duration_seconds 기반 지속 시간 체크:**
+
 ```python
 async def check_duration_exceeded(
     sensor_id: str, 
@@ -468,7 +492,7 @@ async def should_create_alert(
 
 ### 알람 발생 전체 플로우 (개선된 버전)
 
-```
+```text
 [데이터 수집]
 Airflow ETL (매 10분마다)
     │
@@ -505,6 +529,7 @@ Airflow ETL (매 10분마다)
 ### alert-evaluation-service 실행 방식
 
 **옵션 1: 스케줄러 기반 (권장)**
+
 ```python
 # FastAPI + APScheduler 또는 Celery Beat
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -520,6 +545,7 @@ scheduler.start()
 ```
 
 **옵션 2: 이벤트 기반**
+
 ```python
 # Airflow ETL 완료 후 webhook 호출
 # 또는 데이터베이스 트리거 사용
@@ -527,6 +553,7 @@ scheduler.start()
 ```
 
 **옵션 3: Kubernetes CronJob**
+
 ```yaml
 apiVersion: batch/v1
 kind: CronJob
