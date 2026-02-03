@@ -1,104 +1,106 @@
-# Alert 생성 API 예시
+# Alert Creation API Examples
 
-## 실제 데이터 기반 예시
+> **Note**: All IDs, URLs, and values below are examples only. Replace with your actual service URLs (see MSA_EXTENSION_PROPOSAL.md for port allocation) and IDs from location-service, thresholds-service, and sensor-threshold-mapping-service.
 
-### 1. Green 레벨 알람 (정상 범위 내)
+## Real Data-based Examples
+
+### 1. Green Level Alert (Within Normal Range)
 
 ```bash
-curl -X POST "http://localhost:30007/api/v1/alerts/" \
+curl -X POST "http://localhost:30006/api/v1/alerts" \
   -H "Content-Type: application/json" \
   -d '{
-    "loc_id": "A011",
-    "sensor_id": "TEMPIOT-A011",
+    "loc_id": "ZONE-101",
+    "sensor_id": "SENSOR-Z101",
     "alert_type": "pcv_temperature",
     "alert_level": "green",
-    "threshold_id": 1,
+    "threshold_id": 10,
     "threshold_type": "pcv_temperature",
     "threshold_level": "green",
-    "measured_value": 25.5,
+    "measured_value": 22.0,
     "threshold_min": 0.00,
-    "threshold_max": 30.90,
-    "message": "온도가 정상 범위 내입니다 (자재 보관실)"
+    "threshold_max": 28.00,
+    "message": "Temperature within normal range (Zone A)"
   }'
 ```
 
-### 2. Yellow 레벨 알람 (경고)
+### 2. Yellow Level Alert (Warning)
 
 ```bash
-curl -X POST "http://localhost:30007/api/v1/alerts/" \
+curl -X POST "http://localhost:30006/api/v1/alerts" \
   -H "Content-Type: application/json" \
   -d '{
-    "loc_id": "A015",
-    "sensor_id": "TEMPIOT-A015",
+    "loc_id": "ZONE-102",
+    "sensor_id": "SENSOR-Z102",
     "alert_type": "pcv_temperature",
     "alert_level": "yellow",
-    "threshold_id": 2,
+    "threshold_id": 20,
     "threshold_type": "pcv_temperature",
     "threshold_level": "yellow",
-    "measured_value": 32.0,
-    "threshold_min": 31.00,
-    "threshold_max": 32.90,
-    "message": "온도가 경고 범위입니다 (고주파 작업실)"
+    "measured_value": 31.5,
+    "threshold_min": 28.01,
+    "threshold_max": 35.00,
+    "message": "Temperature in warning range (Zone B)"
   }'
 ```
 
-### 3. Orange 레벨 알람 (위험)
+### 3. Orange Level Alert (Critical)
 
 ```bash
-curl -X POST "http://localhost:30007/api/v1/alerts/" \
+curl -X POST "http://localhost:30006/api/v1/alerts" \
   -H "Content-Type: application/json" \
   -d '{
-    "loc_id": "A027",
-    "sensor_id": "TEMPIOT-A027",
+    "loc_id": "ZONE-103",
+    "sensor_id": "SENSOR-Z103",
     "alert_type": "pcv_temperature",
     "alert_level": "orange",
-    "threshold_id": 3,
+    "threshold_id": 30,
     "threshold_type": "pcv_temperature",
     "threshold_level": "orange",
-    "measured_value": 35.5,
-    "threshold_min": 33.00,
+    "measured_value": 38.2,
+    "threshold_min": 35.01,
     "threshold_max": null,
-    "message": "온도가 위험 범위를 초과했습니다 (CTM 1호기)"
+    "message": "Temperature exceeded critical range (Zone C)"
   }'
 ```
 
-## Python 예시
+## Python Examples
 
 ```python
 import requests
 from datetime import datetime
 
-BASE_URL = "http://localhost:30007/api/v1/alerts/"
+BASE_URL = "http://localhost:30006/api/v1/alerts"
 
-# 실제 센서 및 위치 데이터
+# Example sensor and location data (replace with your actual data)
 sensors = {
-    "A011": {"sensor_id": "TEMPIOT-A011", "area": "자재 보관실"},
-    "A015": {"sensor_id": "TEMPIOT-A015", "area": "고주파"},
-    "A027": {"sensor_id": "TEMPIOT-A027", "area": "[3P] CTM 1호기"},
-    "A034": {"sensor_id": "TEMPIOT-A034", "area": "스프레이"},
+    "ZONE-101": {"sensor_id": "SENSOR-Z101", "area": "Zone A"},
+    "ZONE-102": {"sensor_id": "SENSOR-Z102", "area": "Zone B"},
+    "ZONE-103": {"sensor_id": "SENSOR-Z103", "area": "Zone C"},
+    "ZONE-104": {"sensor_id": "SENSOR-Z104", "area": "Zone D"},
 }
 
-# Threshold 데이터
+# Example threshold configuration
 thresholds = {
-    1: {"type": "pcv_temperature", "level": "green", "min": 0.00, "max": 30.90},
-    2: {"type": "pcv_temperature", "level": "yellow", "min": 31.00, "max": 32.90},
-    3: {"type": "pcv_temperature", "level": "orange", "min": 33.00, "max": None},
+    10: {"type": "pcv_temperature", "level": "green", "min": 0.00, "max": 28.00},
+    20: {"type": "pcv_temperature", "level": "yellow", "min": 28.01, "max": 35.00},
+    30: {"type": "pcv_temperature", "level": "orange", "min": 35.01, "max": None},
 }
 
 def create_alert(loc_id, measured_value, threshold_id):
-    """알람 생성"""
+    """Create alert"""
     sensor = sensors[loc_id]
     threshold = thresholds[threshold_id]
     
-    # 측정값에 따라 적절한 threshold 선택
-    if measured_value <= 30.90:
-        threshold_id = 1
+    # Select appropriate threshold based on measured value
+    if measured_value <= 28.00:
+        threshold_id = 10
         alert_level = "green"
-    elif measured_value <= 32.90:
-        threshold_id = 2
+    elif measured_value <= 35.00:
+        threshold_id = 20
         alert_level = "yellow"
     else:
-        threshold_id = 3
+        threshold_id = 30
         alert_level = "orange"
     
     threshold = thresholds[threshold_id]
@@ -114,47 +116,47 @@ def create_alert(loc_id, measured_value, threshold_id):
         "measured_value": float(measured_value),
         "threshold_min": threshold["min"],
         "threshold_max": threshold["max"],
-        "message": f"온도 알람: {sensor['area']} - 측정값: {measured_value}°C"
+        "message": f"Temperature alert: {sensor['area']} - Measured: {measured_value}°C"
     }
     
     response = requests.post(BASE_URL, json=data)
     return response.json()
 
-# 예시 사용
-# create_alert("A011", 25.5, 1)  # Green
-# create_alert("A015", 32.0, 2)  # Yellow
-# create_alert("A027", 35.5, 3)  # Orange
+# Usage example
+# create_alert("ZONE-101", 22.0, 10)  # Green
+# create_alert("ZONE-102", 31.5, 20)  # Yellow
+# create_alert("ZONE-103", 38.2, 30)  # Orange
 ```
 
-## JavaScript 예시
+## JavaScript Examples
 
 ```javascript
-const BASE_URL = "http://localhost:30007/api/v1/alerts/";
+const BASE_URL = "http://localhost:30006/api/v1/alerts";
 
 const sensors = {
-  "A011": { sensor_id: "TEMPIOT-A011", area: "자재 보관실" },
-  "A015": { sensor_id: "TEMPIOT-A015", area: "고주파" },
-  "A027": { sensor_id: "TEMPIOT-A027", area: "[3P] CTM 1호기" },
-  "A034": { sensor_id: "TEMPIOT-A034", area: "스프레이" },
+  "ZONE-101": { sensor_id: "SENSOR-Z101", area: "Zone A" },
+  "ZONE-102": { sensor_id: "SENSOR-Z102", area: "Zone B" },
+  "ZONE-103": { sensor_id: "SENSOR-Z103", area: "Zone C" },
+  "ZONE-104": { sensor_id: "SENSOR-Z104", area: "Zone D" },
 };
 
 const thresholds = {
-  1: { type: "pcv_temperature", level: "green", min: 0.00, max: 30.90 },
-  2: { type: "pcv_temperature", level: "yellow", min: 31.00, max: 32.90 },
-  3: { type: "pcv_temperature", level: "orange", min: 33.00, max: null },
+  10: { type: "pcv_temperature", level: "green", min: 0.00, max: 28.00 },
+  20: { type: "pcv_temperature", level: "yellow", min: 28.01, max: 35.00 },
+  30: { type: "pcv_temperature", level: "orange", min: 35.01, max: null },
 };
 
 function createAlert(locId, measuredValue) {
   let thresholdId, alertLevel;
   
-  if (measuredValue <= 30.90) {
-    thresholdId = 1;
+  if (measuredValue <= 28.00) {
+    thresholdId = 10;
     alertLevel = "green";
-  } else if (measuredValue <= 32.90) {
-    thresholdId = 2;
+  } else if (measuredValue <= 35.00) {
+    thresholdId = 20;
     alertLevel = "yellow";
   } else {
-    thresholdId = 3;
+    thresholdId = 30;
     alertLevel = "orange";
   }
   
@@ -172,7 +174,7 @@ function createAlert(locId, measuredValue) {
     measured_value: measuredValue,
     threshold_min: threshold.min,
     threshold_max: threshold.max,
-    message: `온도 알람: ${sensor.area} - 측정값: ${measuredValue}°C`
+    message: `Temperature alert: ${sensor.area} - Measured: ${measuredValue}°C`
   };
   
   return fetch(BASE_URL, {
@@ -189,230 +191,186 @@ function createAlert(locId, measuredValue) {
     });
 }
 
-// 사용 예시
-// createAlert("A011", 25.5);  // Green
-// createAlert("A015", 32.0);  // Yellow
-// createAlert("A027", 35.5);  // Orange
+// Usage example
+// createAlert("ZONE-101", 22.0);  // Green
+// createAlert("ZONE-102", 31.5);  // Yellow
+// createAlert("ZONE-103", 38.2);  // Orange
 ```
 
-## 실제 센서별 예시
+## Per-Sensor Examples
 
-### A011 - 자재 보관실 (CSI, SinPyeong, MX-1, 1층)
+### SENSOR-Z101 - Zone A (Factory-X, Building-A, 1F)
+
 ```json
 {
-  "loc_id": "A011",
-  "sensor_id": "TEMPIOT-A011",
+  "loc_id": "ZONE-101",
+  "sensor_id": "SENSOR-Z101",
   "alert_type": "pcv_temperature",
   "alert_level": "green",
-  "threshold_id": 1,
+  "threshold_id": 10,
   "threshold_type": "pcv_temperature",
   "threshold_level": "green",
-  "measured_value": 22.5,
+  "measured_value": 23.5,
   "threshold_min": 0.00,
-  "threshold_max": 30.90,
-  "message": "자재 보관실 온도 정상"
+  "threshold_max": 28.00,
+  "message": "Zone A temperature normal"
 }
 ```
 
-### A015 - 고주파 (CSI, SinPyeong, MX-1, 2층)
+### SENSOR-Z102 - Zone B (Factory-X, Building-A, 2F)
+
 ```json
 {
-  "loc_id": "A015",
-  "sensor_id": "TEMPIOT-A015",
+  "loc_id": "ZONE-102",
+  "sensor_id": "SENSOR-Z102",
   "alert_type": "pcv_temperature",
   "alert_level": "yellow",
-  "threshold_id": 2,
+  "threshold_id": 20,
   "threshold_type": "pcv_temperature",
   "threshold_level": "yellow",
-  "measured_value": 32.5,
-  "threshold_min": 31.00,
-  "threshold_max": 32.90,
-  "message": "고주파 작업실 온도 경고"
+  "measured_value": 31.0,
+  "threshold_min": 28.01,
+  "threshold_max": 35.00,
+  "message": "Zone B temperature warning"
 }
 ```
 
-### A027 - [3P] CTM 1호기 (CSI, SinPyeong, PW Center, 1층)
+### SENSOR-Z103 - Zone C (Factory-X, Building-B, 1F)
+
 ```json
 {
-  "loc_id": "A027",
-  "sensor_id": "TEMPIOT-A027",
+  "loc_id": "ZONE-103",
+  "sensor_id": "SENSOR-Z103",
   "alert_type": "pcv_temperature",
   "alert_level": "orange",
-  "threshold_id": 3,
+  "threshold_id": 30,
   "threshold_type": "pcv_temperature",
   "threshold_level": "orange",
-  "measured_value": 35.0,
-  "threshold_min": 33.00,
+  "measured_value": 36.5,
+  "threshold_min": 35.01,
   "threshold_max": null,
-  "message": "CTM 1호기 온도 위험"
+  "message": "Zone C temperature critical"
 }
 ```
 
-### A034 - 스프레이 (CSI, JangNim, Bottom, 1층)
+### SENSOR-Z104 - Zone D (Factory-X, Building-B, 2F)
+
 ```json
 {
-  "loc_id": "A034",
-  "sensor_id": "TEMPIOT-A034",
+  "loc_id": "ZONE-104",
+  "sensor_id": "SENSOR-Z104",
   "alert_type": "pcv_temperature",
   "alert_level": "orange",
-  "threshold_id": 3,
+  "threshold_id": 30,
   "threshold_type": "pcv_temperature",
   "threshold_level": "orange",
-  "measured_value": 34.5,
-  "threshold_min": 33.00,
+  "measured_value": 37.0,
+  "threshold_min": 35.01,
   "threshold_max": null,
-  "message": "스프레이 작업실 온도 위험"
+  "message": "Zone D temperature critical"
 }
 ```
 
-## Threshold 기준
+## Threshold Criteria (Example)
 
-- **Green (threshold_id: 1)**: 0.00 ~ 30.90°C
-- **Yellow (threshold_id: 2)**: 31.00 ~ 32.90°C  
-- **Orange (threshold_id: 3)**: 33.00°C 이상
+- **Green (threshold_id: 10)**: 0.00 ~ 28.00°C
+- **Yellow (threshold_id: 20)**: 28.01 ~ 35.00°C
+- **Orange (threshold_id: 30)**: 35.01°C and above
 
-## Sensor-Threshold 매핑 정보
+## Sensor-Threshold Mapping Information
 
-각 센서는 **Yellow (threshold_id: 2)**와 **Orange (threshold_id: 3)** 두 개의 threshold와 매핑되어 있습니다.
+Each sensor is typically mapped to **Yellow** and **Orange** thresholds. The following is a simplified example mapping.
 
-### 센서별 threshold_map_id
+### threshold_map_id by Sensor (Example)
 
-| 센서 ID | Yellow (threshold_id: 2) | Orange (threshold_id: 3) |
-|---------|-------------------------|-------------------------|
-| TEMPIOT-A011 | map_id: 1 | map_id: 2 |
-| TEMPIOT-A012 | map_id: 3 | map_id: 4 |
-| TEMPIOT-A013 | map_id: 5 | map_id: 6 |
-| TEMPIOT-A014 | map_id: 7 | map_id: 8 |
-| TEMPIOT-A015 | map_id: 9 | map_id: 10 |
-| TEMPIOT-A016 | map_id: 11 | map_id: 12 |
-| TEMPIOT-A017 | map_id: 13 | map_id: 14 |
-| TEMPIOT-A018 | map_id: 15 | map_id: 16 |
-| TEMPIOT-A019 | map_id: 17 | map_id: 18 |
-| TEMPIOT-A020 | map_id: 19 | map_id: 20 |
-| TEMPIOT-A021 | map_id: 21 | map_id: 22 |
-| TEMPIOT-A022 | map_id: 23 | map_id: 24 |
-| TEMPIOT-A023 | map_id: 25 | map_id: 26 |
-| TEMPIOT-A024 | map_id: 27 | map_id: 28 |
-| TEMPIOT-A025 | map_id: 29 | map_id: 30 |
-| TEMPIOT-A026 | map_id: 31 | map_id: 32 |
-| TEMPIOT-A027 | map_id: 33 | map_id: 34 |
-| TEMPIOT-A028 | map_id: 35 | map_id: 36 |
-| TEMPIOT-A029 | map_id: 37 | map_id: 38 |
-| TEMPIOT-A030 | map_id: 39 | map_id: 40 |
-| TEMPIOT-A031 | map_id: 41 | map_id: 42 |
-| TEMPIOT-A032 | map_id: 43 | map_id: 44 |
-| TEMPIOT-A033 | map_id: 45 | map_id: 46 |
-| TEMPIOT-A034 | map_id: 47 | map_id: 48 |
-| TEMPIOT-A035 | map_id: 49 | map_id: 50 |
-| TEMPIOT-A036 | map_id: 51 | map_id: 52 |
-| TEMPIOT-A037 | map_id: 53 | map_id: 54 |
-| TEMPIOT-A038 | map_id: 55 | map_id: 56 |
+| Sensor ID | Yellow (threshold_id: 20) | Orange (threshold_id: 30) |
+| ------ | ------ | ------ |
+| SENSOR-Z101 | map_id: 101 | map_id: 102 |
+| SENSOR-Z102 | map_id: 103 | map_id: 104 |
+| SENSOR-Z103 | map_id: 105 | map_id: 106 |
+| SENSOR-Z104 | map_id: 107 | map_id: 108 |
 
-**참고**: 모든 매핑은 `enabled=true` 상태입니다.
+**Note**: Replace with your actual mapping from sensor-threshold-mapping-service.
 
-## threshold_map_id를 포함한 예시
+## Examples Including threshold_map_id
 
-### Yellow 레벨 알람 (threshold_map_id 포함)
+### Yellow Level Alert (with threshold_map_id)
 
 ```bash
-curl -X POST "http://localhost:30007/api/v1/alerts/" \
+curl -X POST "http://localhost:30006/api/v1/alerts" \
   -H "Content-Type: application/json" \
   -d '{
-    "loc_id": "A011",
-    "sensor_id": "TEMPIOT-A011",
+    "loc_id": "ZONE-101",
+    "sensor_id": "SENSOR-Z101",
     "alert_type": "pcv_temperature",
     "alert_level": "yellow",
-    "threshold_id": 2,
-    "threshold_map_id": 1,
+    "threshold_id": 20,
+    "threshold_map_id": 101,
     "threshold_type": "pcv_temperature",
     "threshold_level": "yellow",
-    "measured_value": 32.0,
-    "threshold_min": 31.00,
-    "threshold_max": 32.90,
-    "message": "온도가 경고 범위입니다 (자재 보관실)"
+    "measured_value": 31.0,
+    "threshold_min": 28.01,
+    "threshold_max": 35.00,
+    "message": "Temperature in warning range (Zone A)"
   }'
 ```
 
-### Orange 레벨 알람 (threshold_map_id 포함)
+### Orange Level Alert (with threshold_map_id)
 
 ```bash
-curl -X POST "http://localhost:30007/api/v1/alerts/" \
+curl -X POST "http://localhost:30006/api/v1/alerts" \
   -H "Content-Type: application/json" \
   -d '{
-    "loc_id": "A011",
-    "sensor_id": "TEMPIOT-A011",
+    "loc_id": "ZONE-101",
+    "sensor_id": "SENSOR-Z101",
     "alert_type": "pcv_temperature",
     "alert_level": "orange",
-    "threshold_id": 3,
-    "threshold_map_id": 2,
+    "threshold_id": 30,
+    "threshold_map_id": 102,
     "threshold_type": "pcv_temperature",
     "threshold_level": "orange",
-    "measured_value": 35.5,
-    "threshold_min": 33.00,
+    "measured_value": 37.5,
+    "threshold_min": 35.01,
     "threshold_max": null,
-    "message": "온도가 위험 범위를 초과했습니다 (자재 보관실)"
+    "message": "Temperature exceeded critical range (Zone A)"
   }'
 ```
 
-## Python 예시 (threshold_map_id 포함)
+## Python Example (with threshold_map_id)
 
 ```python
 import requests
 
-BASE_URL = "http://localhost:30007/api/v1/alerts/"
+BASE_URL = "http://localhost:30006/api/v1/alerts"
 
-# Sensor-Threshold 매핑 정보
+# Example: Sensor-Threshold mapping (from sensor-threshold-mapping-service)
 SENSOR_THRESHOLD_MAP = {
-    "TEMPIOT-A011": {"yellow": 1, "orange": 2},
-    "TEMPIOT-A012": {"yellow": 3, "orange": 4},
-    "TEMPIOT-A013": {"yellow": 5, "orange": 6},
-    "TEMPIOT-A014": {"yellow": 7, "orange": 8},
-    "TEMPIOT-A015": {"yellow": 9, "orange": 10},
-    "TEMPIOT-A016": {"yellow": 11, "orange": 12},
-    "TEMPIOT-A017": {"yellow": 13, "orange": 14},
-    "TEMPIOT-A018": {"yellow": 15, "orange": 16},
-    "TEMPIOT-A019": {"yellow": 17, "orange": 18},
-    "TEMPIOT-A020": {"yellow": 19, "orange": 20},
-    "TEMPIOT-A021": {"yellow": 21, "orange": 22},
-    "TEMPIOT-A022": {"yellow": 23, "orange": 24},
-    "TEMPIOT-A023": {"yellow": 25, "orange": 26},
-    "TEMPIOT-A024": {"yellow": 27, "orange": 28},
-    "TEMPIOT-A025": {"yellow": 29, "orange": 30},
-    "TEMPIOT-A026": {"yellow": 31, "orange": 32},
-    "TEMPIOT-A027": {"yellow": 33, "orange": 34},
-    "TEMPIOT-A028": {"yellow": 35, "orange": 36},
-    "TEMPIOT-A029": {"yellow": 37, "orange": 38},
-    "TEMPIOT-A030": {"yellow": 39, "orange": 40},
-    "TEMPIOT-A031": {"yellow": 41, "orange": 42},
-    "TEMPIOT-A032": {"yellow": 43, "orange": 44},
-    "TEMPIOT-A033": {"yellow": 45, "orange": 46},
-    "TEMPIOT-A034": {"yellow": 47, "orange": 48},
-    "TEMPIOT-A035": {"yellow": 49, "orange": 50},
-    "TEMPIOT-A036": {"yellow": 51, "orange": 52},
-    "TEMPIOT-A037": {"yellow": 53, "orange": 54},
-    "TEMPIOT-A038": {"yellow": 55, "orange": 56},
+    "SENSOR-Z101": {"yellow": 101, "orange": 102},
+    "SENSOR-Z102": {"yellow": 103, "orange": 104},
+    "SENSOR-Z103": {"yellow": 105, "orange": 106},
+    "SENSOR-Z104": {"yellow": 107, "orange": 108},
 }
 
 def create_alert_with_map(sensor_id, loc_id, measured_value, area_name):
-    """threshold_map_id를 포함한 알람 생성"""
-    # 측정값에 따라 threshold 선택
-    if measured_value <= 30.90:
-        threshold_id = 1
+    """Create alert including threshold_map_id"""
+    # Select threshold based on measured value
+    if measured_value <= 28.00:
+        threshold_id = 10
         alert_level = "green"
-        threshold_map_id = None  # Green은 매핑 없음
-    elif measured_value <= 32.90:
-        threshold_id = 2
+        threshold_map_id = None  # Green has no mapping
+    elif measured_value <= 35.00:
+        threshold_id = 20
         alert_level = "yellow"
         threshold_map_id = SENSOR_THRESHOLD_MAP[sensor_id]["yellow"]
     else:
-        threshold_id = 3
+        threshold_id = 30
         alert_level = "orange"
         threshold_map_id = SENSOR_THRESHOLD_MAP[sensor_id]["orange"]
     
     thresholds = {
-        1: {"type": "pcv_temperature", "level": "green", "min": 0.00, "max": 30.90},
-        2: {"type": "pcv_temperature", "level": "yellow", "min": 31.00, "max": 32.90},
-        3: {"type": "pcv_temperature", "level": "orange", "min": 33.00, "max": None},
+        10: {"type": "pcv_temperature", "level": "green", "min": 0.00, "max": 28.00},
+        20: {"type": "pcv_temperature", "level": "yellow", "min": 28.01, "max": 35.00},
+        30: {"type": "pcv_temperature", "level": "orange", "min": 35.01, "max": None},
     }
     
     threshold = thresholds[threshold_id]
@@ -429,55 +387,54 @@ def create_alert_with_map(sensor_id, loc_id, measured_value, area_name):
         "measured_value": float(measured_value),
         "threshold_min": threshold["min"],
         "threshold_max": threshold["max"],
-        "message": f"온도 알람: {area_name} - 측정값: {measured_value}°C"
+        "message": f"Temperature alert: {area_name} - Measured: {measured_value}°C"
     }
     
     response = requests.post(BASE_URL, json=data)
     return response.json()
 
-# 사용 예시
-# create_alert_with_map("TEMPIOT-A011", "A011", 32.0, "자재 보관실")  # Yellow
-# create_alert_with_map("TEMPIOT-A011", "A011", 35.5, "자재 보관실")  # Orange
+# Usage example
+# create_alert_with_map("SENSOR-Z101", "ZONE-101", 31.0, "Zone A")  # Yellow
+# create_alert_with_map("SENSOR-Z101", "ZONE-101", 37.5, "Zone A")  # Orange
 ```
 
-## 사용 가능한 센서 ID 목록
+## Available Sensor ID List
 
-- TEMPIOT-A011 ~ TEMPIOT-A038
-- 각 센서는 loc_id A011 ~ A038과 매핑됨
-- 각 센서는 Yellow(threshold_id: 2)와 Orange(threshold_id: 3) threshold와 매핑됨
+- Use sensor IDs and loc_ids from your location-service
+- Each sensor is typically mapped to Yellow and Orange thresholds in sensor-threshold-mapping-service
 
 ---
 
-# Notification 생성 API 예시
+## Notification Creation API Examples
 
-## POST /api/v1/notifications/ 호출 예시
+### POST /api/v1/notifications/ Call Examples
 
-### 1. cURL 예시
+#### 1. cURL Example
 
 ```bash
-curl -X POST "http://localhost:30009/api/v1/notifications/" \
+curl -X POST "http://localhost:30008/api/v1/notifications/send" \
   -H "Content-Type: application/json" \
   -d '{
-    "alert_id": 1,
-    "subscription_id": 1,
+    "alert_id": 999,
+    "subscription_ids": [101, 102],
     "notify_type": "email",
-    "notify_id": "user@example.com"
+    "notify_id": "operator@example.org"
   }'
 ```
 
-### 2. Python (requests) 예시
+#### 2. Python (requests) Example
 
 ```python
 import requests
 
-url = "http://localhost:30009/api/v1/notifications/"
+url = "http://localhost:30008/api/v1/notifications/send"
 headers = {"Content-Type": "application/json"}
 
 data = {
-    "alert_id": 1,
-    "subscription_id": 1,
+    "alert_id": 999,
+    "subscription_ids": [101, 102],
     "notify_type": "email",
-    "notify_id": "user@example.com"
+    "notify_id": "operator@example.org"
 }
 
 response = requests.post(url, json=data, headers=headers)
@@ -485,16 +442,16 @@ print(response.status_code)
 print(response.json())
 ```
 
-### 3. JavaScript (fetch) 예시
+#### 3. JavaScript (fetch) Example
 
 ```javascript
-const url = "http://localhost:30009/api/v1/notifications/";
+const url = "http://localhost:30008/api/v1/notifications/send";
 
 const data = {
-  alert_id: 1,
-  subscription_id: 1,
+  alert_id: 999,
+  subscription_ids: [101, 102],
   notify_type: "email",
-  notify_id: "user@example.com"
+  notify_id: "operator@example.org"
 };
 
 fetch(url, {
@@ -509,88 +466,88 @@ fetch(url, {
   .catch(error => console.error("Error:", error));
 ```
 
-## 알림 타입별 예시
+## Examples by Notification Type
 
-### Email 알림
+### Email Notification
 
 ```json
 {
-  "alert_id": 1,
-  "subscription_id": 1,
+  "alert_id": 999,
+  "subscription_ids": [101, 102],
   "notify_type": "email",
-  "notify_id": "admin@company.com"
+  "notify_id": "monitor@example.org"
 }
 ```
 
-### 카카오톡 알림
+### KakaoTalk Notification
 
 ```json
 {
-  "alert_id": 1,
-  "subscription_id": 1,
+  "alert_id": 999,
+  "subscription_ids": [101],
   "notify_type": "kakao",
-  "notify_id": "kakao_account_name"
+  "notify_id": "sample_kakao_id"
 }
 ```
 
-### SMS 알림
+### SMS Notification
 
 ```json
 {
-  "alert_id": 1,
-  "subscription_id": 1,
+  "alert_id": 999,
+  "subscription_ids": [101],
   "notify_type": "sms",
-  "notify_id": "010-1234-5678"
+  "notify_id": "555-0199"
 }
 ```
 
-### 앱 알림
+### App Notification
 
 ```json
 {
-  "alert_id": 1,
-  "subscription_id": 1,
+  "alert_id": 999,
+  "subscription_ids": [101],
   "notify_type": "app",
-  "notify_id": "app_user_account"
+  "notify_id": "app_user_001"
 }
 ```
 
-## 실제 사용 예시
+## Real-world Usage Example
 
-### Alert 생성 후 Notification 생성
+### Create Notification After Alert Creation
 
 ```python
 import requests
 
-ALERT_URL = "http://localhost:30007/api/v1/alerts/"
-NOTIFICATION_URL = "http://localhost:30009/api/v1/notifications/"
+ALERT_URL = "http://localhost:30006/api/v1/alerts"
+NOTIFICATION_URL = "http://localhost:30008/api/v1/notifications/send"
 
-# 1. Alert 생성
+# 1. Create Alert
 alert_data = {
-    "loc_id": "A011",
-    "sensor_id": "TEMPIOT-A011",
+    "loc_id": "ZONE-103",
+    "sensor_id": "SENSOR-Z103",
     "alert_type": "pcv_temperature",
     "alert_level": "orange",
-    "threshold_id": 3,
-    "threshold_map_id": 2,
+    "threshold_id": 30,
+    "threshold_map_id": 106,
     "threshold_type": "pcv_temperature",
     "threshold_level": "orange",
-    "measured_value": 35.5,
-    "threshold_min": 33.00,
+    "measured_value": 37.0,
+    "threshold_min": 35.01,
     "threshold_max": None,
-    "message": "온도가 위험 범위를 초과했습니다"
+    "message": "Temperature exceeded critical range"
 }
 
 alert_response = requests.post(ALERT_URL, json=alert_data)
 alert = alert_response.json()
 alert_id = alert["alert_id"]
 
-# 2. 해당 Alert에 대한 Notification 생성
+# 2. Send Notification for the Alert
 notification_data = {
     "alert_id": alert_id,
-    "subscription_id": 1,  # 실제 구독 ID
+    "subscription_ids": [101, 102],  # Replace with actual subscription IDs
     "notify_type": "email",
-    "notify_id": "admin@company.com"
+    "notify_id": "operator@example.org"
 }
 
 notification_response = requests.post(NOTIFICATION_URL, json=notification_data)
@@ -598,45 +555,47 @@ notification = notification_response.json()
 print(f"Notification created: {notification['notification_id']}")
 ```
 
-## 응답 예시
+## Response Example
 
 ```json
 {
-  "notification_id": 1,
-  "alert_id": 1,
-  "subscription_id": 1,
+  "notification_id": 9001,
+  "alert_id": 999,
+  "subscription_id": 101,
   "notify_type": "email",
-  "notify_id": "user@example.com",
+  "notify_id": "operator@example.org",
   "status": "PENDING",
   "try_count": 0,
-  "created_time": "2024-01-23T17:00:00+09:00",
+  "created_time": "2025-02-03T10:00:00+09:00",
   "last_try_time": null,
   "sent_time": null,
   "fail_reason": null
 }
 ```
 
-## 필드 설명
+## Field Descriptions
 
-**필수 필드:**
-- `alert_id`: 알람 ID (integer) - 생성된 alert의 ID
-- `subscription_id`: 구독 ID (integer) - alert_subscriptions 테이블의 subscription_id
-- `notify_type`: 알림 타입 (enum: "email", "kakao", "sms", "app")
-- `notify_id`: 알림 ID (string)
-  - email: 이메일 주소
-  - kakao: 카카오톡 계정 이름
-  - sms: 전화번호
-  - app: 앱 계정 이름
+**Required fields:**
 
-**자동 생성 필드:**
-- `notification_id`: 알림 ID (자동 생성)
-- `status`: 상태 (기본값: "PENDING")
-- `try_count`: 재시도 횟수 (기본값: 0)
-- `created_time`: 생성 시간 (KST로 반환)
-- `last_try_time`: 마지막 시도 시간 (초기값: null)
-- `sent_time`: 발송 시간 (초기값: null)
-- `fail_reason`: 실패 사유 (초기값: null)
+- `alert_id`: Alert ID (integer) - ID of the created alert
+- `subscription_id`: Subscription ID (integer) - subscription_id from alert_subscriptions table
+- `notify_type`: Notification type (enum: "email", "kakao", "sms", "app")
+- `notify_id`: Notification ID (string)
+  - email: Email address
+  - kakao: KakaoTalk account name
+  - sms: Phone number
+  - app: App account name
 
-## 통합 Swagger UI를 통한 테스트
+**Auto-generated fields:**
 
-http://localhost:30005/swagger 에서 `alert-notification-service` 섹션의 `/api/v1/notifications/` 엔드포인트를 직접 테스트할 수 있습니다.
+- `notification_id`: Notification ID (auto-generated)
+- `status`: Status (default: "PENDING")
+- `try_count`: Retry count (default: 0)
+- `created_time`: Creation time (returned in KST)
+- `last_try_time`: Last attempt time (initial: null)
+- `sent_time`: Sent time (initial: null)
+- `fail_reason`: Failure reason (initial: null)
+
+## Testing via Integrated Swagger UI
+
+You can test the `/api/v1/notifications/send` endpoint in the `alert-notification-service` section at `http://localhost:30005/swagger`. Replace host/port with your actual deployment URL.
