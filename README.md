@@ -12,14 +12,14 @@ IoT sensor-based apparent temperature data monitoring and notification system
 ## 📁 Project Structure
 
 ```text
-flet_montrg/
+flet-montrg/
 ├── services/                              # Microservices source code
-│   ├── thresholds-service/              # Threshold CRUD API
+│   ├── thresholds-service/               # Threshold CRUD API
 │   ├── location-service/                 # Sensor location information API
 │   ├── realtime-service/                 # Real-time status API
-│   ├── aggregation-service/             # Period query API
+│   ├── aggregation-service/              # Period query API
 │   ├── alert-service/                    # Alert creation and management
-│   ├── alert-subscription-service/      # Alert subscription management
+│   ├── alert-subscription-service/       # Alert subscription management
 │   ├── alert-notification-service/       # Notification delivery management
 │   ├── sensor-threshold-mapping-service/ # Sensor-threshold mapping management
 │   └── integrated-swagger-service/       # Integrated API documentation and proxy
@@ -29,11 +29,13 @@ flet_montrg/
 │   ├── realtime/                         # realtime-service deployment
 │   ├── aggregation/                      # aggregation-service deployment
 │   ├── alert/                            # alert-service deployment
-│   ├── alert-subscription/                # alert-subscription-service deployment
-│   ├── alert-notification/                # alert-notification-service deployment
-│   ├── sensor-threshold-mapping/          # sensor-threshold-mapping-service deployment
-│   └── integrated-swagger/                # integrated-swagger-service deployment
-├── config/                               # Common configuration files
+│   ├── alert-subscription/               # alert-subscription-service deployment
+│   ├── alert-notification/               # alert-notification-service deployment
+│   ├── sensor-threshold-mapping/         # sensor-threshold-mapping-service deployment
+│   └── integrated-swagger/               # integrated-swagger-service deployment
+├── scripts/                              # Cluster and deployment scripts
+│   ├── recreate-cluster.sh
+│   └── redeploy-all.sh
 └── README.md                             # Project documentation
 ```
 
