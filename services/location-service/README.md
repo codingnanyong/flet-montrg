@@ -1,138 +1,246 @@
-# 🚀 Location Service
+# 🗺️ Location Service
 
-센서 위치 정보 관리 API 서비스
+Sensor location management API
 
-## 📁 프로젝트 구조
+## 📁 Project Structure
 
 ```text
 location-service/
 ├── app/
-│   ├── __init__.py
-│   ├── main.py                 # FastAPI 애플리케이션 진입점
-│   ├── api/
-│   │   ├── __init__.py
-│   │   └── v1/
-│   │       ├── __init__.py
-│   │       ├── api.py          # API v1 라우터
-│   │       └── endpoints/
-│   │           ├── __init__.py
-│   │           └── locations.py  # 위치 정보 API 엔드포인트
+│   ├── main.py                 # FastAPI entry
+│   ├── api/v1/
+│   │   ├── api.py              # API v1 router
+│   │   └── endpoints/locations.py
 │   ├── core/
-│   │   ├── __init__.py
-│   │   ├── config.py           # 설정 관리
-│   │   ├── database.py         # 데이터베이스 연결
-│   │   ├── exceptions.py       # 커스텀 예외
-│   │   └── logging.py          # 로깅 설정
+│   │   ├── config.py
+│   │   ├── database.py
+│   │   ├── exceptions.py
+│   │   └── logging.py
 │   ├── models/
-│   │   ├── __init__.py
-│   │   ├── database_models.py  # SQLAlchemy 모델
-│   │   └── schemas.py          # Pydantic 스키마
+│   │   ├── database_models.py
+│   │   └── schemas.py
 │   └── services/
-│       ├── __init__.py
-│       └── location_service.py # 비즈니스 로직
+│       └── location_service.py
 ├── tests/
-│   ├── __init__.py
-│   ├── conftest.py             # pytest 설정
-│   ├── integration/
-│   │   └── test_location_api.py
-│   └── unit/
-│       └── test_location_service.py
-├── requirements.txt            # Python 의존성
-├── requirements-test.txt       # 테스트 의존성
-├── env.example                 # 환경 변수 예시
-├── Dockerfile                  # Docker 설정
-├── pytest.ini                 # pytest 설정
-├── test.sh                     # 테스트 실행 스크립트
-└── README.md                   # 프로젝트 문서
+│   ├── conftest.py
+│   ├── integration/test_location_api.py
+│   └── unit/test_location_service.py
+├── requirements.txt
+├── requirements-test.txt
+├── env.example
+├── test.sh
+├── Dockerfile
+└── README.md
 ```
 
-## ⚙️ 설치 및 실행
-
-### 1. 📦 의존성 설치
+## ⚙️ Install & Run
 
 ```bash
 pip install -r requirements.txt
-```
-
-### 2. 🔧 환경 변수 설정
-
-```bash
 cp env.example .env
-# .env 파일을 편집하여 필요한 설정을 변경
-```
-
-### 3. ▶️ 애플리케이션 실행
-
-```bash
-# 개발 모드
-python -m app.main
-
-# 또는 uvicorn 직접 사용
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+# or: docker build -t location-service . && docker run -p 8000:8000 --env-file .env location-service
 ```
 
-### 4. 🐳 Docker 실행
+## 🔌 API Endpoints
 
-```bash
-docker build -t location-service .
-docker run -p 8000:8000 location-service
+### Location queries
+
+#### List all locations
+
+```http
+GET /api/v1/locations/
 ```
 
-## 📘 API 문서
+**Example response:**
 
-- Swagger UI: [http://localhost:8000/docs]
-- ReDoc: [http://localhost:8000/redoc]
+```json
+[
+  { "loc_id": "LOC001", "factory": "Factory-A", "building": "Bld-1", "floor": 1, "area": "Area-1" },
+  { "loc_id": "LOC002", "factory": "Factory-A", "building": "Bld-2", "floor": 1, "area": "Area-2" }
+]
+```
 
-## 🧪 테스트
+#### Get by location ID
+
+```http
+GET /api/v1/locations/{loc_id}
+```
+
+- **Parameters**: `loc_id` (string, required), e.g. `"LOC001"`
+
+**Example response:**
+
+```json
+{
+  "loc_id": "LOC001",
+  "factory": "Factory-A",
+  "building": "Bld-1",
+  "floor": 1,
+  "area": "Area-1"
+}
+```
+
+#### By factory
+
+```http
+GET /api/v1/locations/factory/{factory}
+```
+
+- **Parameters**: `factory` (string, required), e.g. `"Factory-A"`
+
+#### By building
+
+```http
+GET /api/v1/locations/building/{building}
+```
+
+- **Parameters**: `building` (string, required), e.g. `"Bld-1"`
+
+#### By floor
+
+```http
+GET /api/v1/locations/floor/{floor}
+```
+
+- **Parameters**: `floor` (integer, required), e.g. `1`
+
+#### Multi-filter
+
+```http
+GET /api/v1/locations/filter?factory={factory}&building={building}&floor={floor}
+```
+
+- **Query params** (all optional): `factory`, `building`, `floor`
+
+### Basic endpoints
+
+- `GET /` — Service info
+- `GET /health` — Health check
+- `GET /ready` — Readiness (includes DB)
+- `GET /docs` — Swagger UI
+- `GET /redoc` — ReDoc
+
+## 📊 Data Model
+
+### LocationInfo
+
+- `loc_id` (string): Location ID (PK)
+- `factory` (string): Factory name
+- `building` (string): Building name
+- `floor` (integer): Floor
+- `area` (string): Area name
+
+## 🔧 Environment Variables
+
+| Variable | Description | Default |
+| ------------ | ----------------------------- | ---------------- |
+| APP_NAME | Application name | Location Service |
+| APP_VERSION | Version | 1.0.0 |
+| DEBUG | Debug mode | false |
+| ENVIRONMENT | development/production | development |
+| HOST | Server host | 0.0.0.0 |
+| PORT | Server port | 8000 |
+| DATABASE_URL | Database URL | - |
+| CORS_ORIGINS | CORS origins | * |
+| LOG_LEVEL | Log level | INFO |
+
+### Example .env
 
 ```bash
-# 모든 테스트 실행
+APP_NAME=Location Service
+APP_VERSION=1.0.0
+DEBUG=false
+ENVIRONMENT=production
+HOST=0.0.0.0
+PORT=8000
+DATABASE_URL=postgresql+asyncpg://<user>:<password>@<host>:<port>/<db>
+CORS_ORIGINS=["*"]
+LOG_LEVEL=INFO
+```
+
+## 🧪 Tests
+
+```bash
+./test.sh
+# or
 pytest
-
-# 커버리지와 함께 실행
-pytest --cov=app
-
-# 특정 테스트 파일 실행
+pytest --cov=app --cov-report=html
 pytest tests/unit/test_location_service.py
 pytest tests/integration/test_location_api.py
-
-# 테스트 스크립트 사용
-./test.sh
+pytest -v
+pytest -x
 ```
 
-## ✨ 주요 기능
+### Test layout
 
-- 센서 위치 정보 CRUD 작업
-- 위치별 센서 조회
-- 지역/구역별 센서 그룹핑
-- 좌표 기반 위치 검색
-- 데이터 유효성 검사
-- 로깅 및 예외 처리
-- 헬스체크 및 레디니스 체크 엔드포인트
-- Prometheus 메트릭 지원
+- **Unit** (`tests/unit/`): Business logic, e.g. `test_location_service.py`
+- **Integration** (`tests/integration/`): API endpoints, e.g. `test_location_api.py`
 
-## 🔧 환경 변수
+## 📈 Monitoring
 
-| 변수명 | 설명 | 기본값 |
-|--------|------|--------|
-| APP_NAME | 애플리케이션 이름 | Location Service |
-| APP_VERSION | 애플리케이션 버전 | 1.0.0 |
-| DEBUG | 디버그 모드 | false |
-| ENVIRONMENT | 환경 (development/production) | development |
-| HOST | 서버 호스트 | 0.0.0.0 |
-| PORT | 서버 포트 | 8000 |
-| DATABASE_URL | 데이터베이스 연결 URL | - |
-| CORS_ORIGINS | CORS 허용 오리진 | * |
-| LOG_LEVEL | 로그 레벨 | INFO |
+- Structured JSON logging
+- Liveness: `GET /health`
+- Readiness: `GET /ready` (DB check)
 
-## 📊 모니터링
+Kubernetes probes example:
 
-- **헬스체크**: `GET /health`
-- **레디니스 체크**: `GET /ready`
-- **Prometheus 메트릭**: `GET /metrics`
+```yaml
+livenessProbe:
+  httpGet: { path: /health, port: 8000 }
+  initialDelaySeconds: 10
+  periodSeconds: 30
+readinessProbe:
+  httpGet: { path: /ready, port: 8000 }
+  initialDelaySeconds: 5
+  periodSeconds: 10
+```
 
-## 🔗 관련 서비스
+## 🔗 Integration
 
-- **Thresholds Service**: 임계치 관리
-- **Alert Service**: 알림 처리
-- **Sensor Threshold Mapping Service**: 센서-임계치 매핑
+**Realtime Service** calls this service for sensor locations. **Aggregation Service** can enrich results with location info.
+
+## 🚀 Deployment (Kubernetes)
+
+```bash
+docker build -t location-service:latest .
+kind load docker-image location-service:latest --name <cluster-name>
+kubectl apply -f k8s/
+kubectl get pods -n <namespace> -l app=location-service
+
+# Access
+kubectl port-forward -n <namespace> svc/location-service 30002:80
+open http://localhost:30002/docs
+```
+
+## 💡 Adding a new filter
+
+1. Update Pydantic schema (`models/schemas.py`), e.g. add `area` to `LocationFilter`.
+2. Add service logic in `services/location_service.py`.
+3. Add endpoint in `api/v1/endpoints/locations.py`.
+4. Add tests under `tests/`.
+
+## 🐛 Troubleshooting
+
+**DB connection failed**: Check `DATABASE_URL`, DB server, network. Test with `psql` or `docker logs location-service`.
+
+**Empty locations**: Verify data in DB, e.g. `SELECT * FROM <schema>.<table> LIMIT 10`; insert sample rows if needed.
+
+## 📚 References
+
+- [FastAPI](https://fastapi.tiangolo.com/)
+- [SQLAlchemy](https://docs.sqlalchemy.org/)
+- [Pydantic](https://docs.pydantic.dev/)
+- [Pytest](https://docs.pytest.org/)
+
+## ✨ Features
+
+- Location CRUD and filters
+- RESTful API, Swagger/ReDoc
+- Structured logging, health/ready endpoints
+- Async DB, unit/integration tests
+- Docker and Kubernetes–ready
+
+---
+
+**Last Updated**: February 2026

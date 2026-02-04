@@ -25,6 +25,7 @@ class Level(str, Enum):
     YELLOW = "yellow"
     RED = "red"
     ORANGE = "orange"
+    YELLOW = "Yellow"
 
 
 class ThresholdBase(BaseModel):
