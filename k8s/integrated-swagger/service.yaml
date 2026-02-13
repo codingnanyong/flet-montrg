@@ -10,17 +10,16 @@ metadata:
     prometheus.io/port: "8000"
     prometheus.io/path: "/metrics"
 spec:
-  type: NodePort
+  # ClusterIP: 외부 직접 접근 제거. web-service(30012)만 사용. /api, /openapi.json 프록시됨
+  type: ClusterIP
   ports:
   - name: http
     port: 80
     targetPort: 8000
-    nodePort: 30005
     protocol: TCP
   - name: metrics
     port: 8000
     targetPort: 8000
-    nodePort: 30006
     protocol: TCP
   selector:
     app: integrated-swagger-service
