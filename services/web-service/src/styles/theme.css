@@ -1,0 +1,137 @@
+/**
+ * Edge HMI 스타일 테마 변수 (light/dark)
+ * data-theme는 html(documentElement)에 설정됨
+ */
+:root {
+  color-scheme: dark;
+}
+:root,
+[data-theme='light'] {
+  --bg-primary: #f0f2f5;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #fafbfc;
+  --border: #d1d9e0;
+  --border-strong: #8b949e;
+  --text-primary: #0d1117;
+  --text-secondary: #4b5563;
+  --text-tertiary: #6b7280;
+  --accent: #238636;
+  --accent-hover: #2ea043;
+  --accent-muted: rgba(35, 134, 54, 0.12);
+  --accent-active: #166534;
+  --sidebar-width: 260px;
+  --bg-tertiary: #e8eaed;
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme='light'] {
+  color-scheme: light;
+}
+[data-theme='dark'] {
+  color-scheme: dark;
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-card: #21262d;
+  --bg-card-hover: #30363d;
+  --border: #30363d;
+  --border-strong: #6e7681;
+  --text-primary: #e6edf3;
+  --text-secondary: #8b949e;
+  --text-tertiary: #6e7681;
+  --accent: #3fb950;
+  --accent-hover: #56d364;
+  --accent-muted: rgba(63, 185, 80, 0.15);
+  --accent-active: #56d364;
+  --bg-tertiary: #21262d;
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', Helvetica, Arial, sans-serif;
+  font-size: 15px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.01em;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+/* Swagger UI: 정보 영역(제목/버전/OAS 배지/설명) 표시 — 참조 이미지와 동일 */
+/* (기존 display:none 제거) */
+
+/* Swagger UI 다크 모드 — 배경/테두리만 조정, HTTP 메서드 색상 유지 */
+[data-theme='dark'] .swagger-ui {
+  background: var(--bg-card) !important;
+}
+[data-theme='dark'] .swagger-ui .information-container,
+[data-theme='dark'] .swagger-ui .information-container .info {
+  background: var(--bg-card) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+}
+[data-theme='dark'] .swagger-ui .opblock-body,
+[data-theme='dark'] .swagger-ui section.models,
+[data-theme='dark'] .swagger-ui .model-box {
+  background: var(--bg-card) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+}
+/* opblock 배경: 메서드별 좌측 색상은 유지, 나머지만 다크 */
+[data-theme='dark'] .swagger-ui .opblock {
+  border-color: var(--border) !important;
+}
+[data-theme='dark'] .swagger-ui .opblock-summary {
+  border-color: var(--border) !important;
+}
+[data-theme='dark'] .swagger-ui .opblock-tag,
+[data-theme='dark'] .swagger-ui .opblock-tag-section h3,
+[data-theme='dark'] .swagger-ui .opblock-summary-path,
+[data-theme='dark'] .swagger-ui .opblock-summary-description,
+[data-theme='dark'] .swagger-ui table thead tr th,
+[data-theme='dark'] .swagger-ui table tbody tr td {
+  color: var(--text-primary) !important;
+}
+[data-theme='dark'] .swagger-ui input[type=text],
+[data-theme='dark'] .swagger-ui input[type=number],
+[data-theme='dark'] .swagger-ui textarea,
+[data-theme='dark'] .swagger-ui select {
+  background: var(--bg-secondary) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Sidebar scrollbar */
+.sidebarNav {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+.sidebarNav::-webkit-scrollbar { width: 6px; }
+.sidebarNav::-webkit-scrollbar-track { background: transparent; }
+.sidebarNav::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.serviceListScroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+  max-height: 320px;
+  overflow-y: auto;
+}
+.serviceListScroll::-webkit-scrollbar { width: 4px; }
+.serviceListScroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
