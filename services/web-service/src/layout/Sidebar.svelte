@@ -1,10 +1,14 @@
 <script>
   import { view, selectedService, availableServices } from '../state/appStore.js';
-  import { toDisplayName } from '../utils/serviceHelpers.js';
+  import { locale } from '../state/localeStore.js';
+  import { getLabels, getServiceLabel } from '../config/labels.js';
+  import { toDisplayName, serviceCardEmoji } from '../utils/serviceHelpers.js';
   import { APP_NAME, APP_SUBTITLE } from '../config/constants.js';
 
   export let onSelectService = (_name) => {};
   export let onNavSwaggerClick = () => {};
+
+  $: L = getLabels($locale);
 
   $: navOverviewActive = $view === 'overview';
   $: navSwaggerActive = $view === 'swagger' && $selectedService === 'integrated';
@@ -27,7 +31,7 @@
 
 <aside
   class="flex flex-col flex-shrink-0 min-h-0 border-r"
-  style="width: var(--sidebar-width); min-width: var(--sidebar-width); background: var(--bg-secondary); border-color: var(--border); box-shadow: 2px 0 8px rgba(0,0,0,0.04);"
+  style="width: var(--sidebar-width); min-width: var(--sidebar-width); background: var(--bg-primary); border-color: var(--border);"
 >
   <a href="#overview" class="flex items-center gap-3 py-6 px-5 border-b no-underline hover:no-underline" style="border-color: var(--border); color: inherit;">
     <span class="w-7 h-7 flex-shrink-0 flex items-center justify-center rounded-full overflow-hidden" style="background: var(--accent);" aria-hidden>
@@ -46,34 +50,37 @@
     </div>
   </a>
 
-  <nav class="sidebarNav flex-1 overflow-y-auto overflow-x-hidden py-4 px-2.5">
-    <div class="mb-6 rounded-[10px] border p-3" style="background: var(--bg-primary); border-color: var(--border);">
-      <span class="block pb-2 mb-2 text-[0.6875rem] font-bold uppercase tracking-wider border-b" style="color: var(--text-secondary); border-color: var(--border);">Quick Links</span>
+  <nav class="flex flex-col flex-1 min-h-0 overflow-hidden py-4 px-2.5">
+    <div class="flex-shrink-0 mb-4 py-2">
+      <span class="block pb-2 mb-2 text-[0.6875rem] font-bold uppercase tracking-wider border-b" style="color: var(--text-secondary); border-color: var(--border);">{L.quickLinks}</span>
       <a
         href="#overview"
-        class="{navLinkClass(navOverviewActive)} hover:bg-[var(--bg-tertiary)]"
+        class="{navLinkClass(navOverviewActive)} hover:bg-[var(--bg-tertiary)] flex items-center"
         style="{navLinkStyle(navOverviewActive)}"
       >
-        <span class="flex-1 min-w-0 truncate">Overview</span>
+        <span class="flex-shrink-0 mr-2 text-base leading-none">📋</span>
+        <span class="flex-1 min-w-0 truncate">{L.overview}</span>
         {#if navOverviewActive}<span class="flex-shrink-0 font-semibold" style="color: var(--accent-active);">›</span>{/if}
       </a>
       <a
         href="#swagger"
-        class="{navLinkClass(navSwaggerActive)} hover:bg-[var(--bg-tertiary)]"
+        class="{navLinkClass(navSwaggerActive)} hover:bg-[var(--bg-tertiary)] flex items-center"
         style="{navLinkStyle(navSwaggerActive)}"
         on:click|preventDefault={onNavSwaggerClick}
       >
-        <span class="flex-1 min-w-0 truncate">Swagger UI</span>
+        <span class="flex-shrink-0 mr-2 text-base leading-none">📄</span>
+        <span class="flex-1 min-w-0 truncate">{L.swaggerUI}</span>
         {#if navSwaggerActive}<span class="flex-shrink-0 font-semibold" style="color: var(--accent-active);">›</span>{/if}
       </a>
     </div>
 
-    <div class="rounded-[10px] border p-3" style="background: var(--bg-primary); border-color: var(--border);">
-      <span class="block pb-2 mb-2 text-[0.6875rem] font-bold uppercase tracking-wider border-b" style="color: var(--text-secondary); border-color: var(--border);">Table APIs</span>
-      <div class="serviceListScroll flex flex-col gap-px">
+    <div class="flex flex-col flex-1 min-h-0 py-2 overflow-hidden">
+      <span class="block pb-2 mb-2 text-[0.6875rem] font-bold uppercase tracking-wider border-b flex-shrink-0" style="color: var(--text-secondary); border-color: var(--border);">{L.tableApis}</span>
+      <div class="serviceListScroll flex flex-col gap-px flex-1 min-h-0 overflow-y-auto mt-1">
         {#each serviceList as name}
           {@const spec = $availableServices[name]}
-          {@const label = toDisplayName(name, spec)}
+          {@const label = getServiceLabel(name, $locale, toDisplayName(name, spec))}
+          {@const emoji = serviceCardEmoji(name)}
           {@const isActive = $view === 'swagger' && $selectedService === name}
           <a
             href="#swagger"
@@ -83,6 +90,7 @@
             class:pointer-events-none={spec && !spec.is_available}
             on:click={(e) => handleServiceClick(e, name)}
           >
+            <span class="flex-shrink-0 mr-2 text-base leading-none">{emoji}</span>
             <span class="flex-1 min-w-0 truncate">{label}</span>
             {#if isActive}<span class="flex-shrink-0 font-semibold" style="color: var(--accent-active);">›</span>{/if}
           </a>

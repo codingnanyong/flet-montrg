@@ -22,13 +22,11 @@ if [ "$1" == "--clean" ]; then
     sleep 5
 fi
 
-# Docker 이미지 빌드 (선택사항 - 이미 빌드되어 있으면 스킵)
-if [ "$1" != "--no-build" ] && [ "$2" != "--no-build" ]; then
-    echo "🔨 Docker 이미지 빌드..."
-    cd ../../services/web-service
-    docker build -t $IMAGE_NAME .
-    cd ../../k8s/web-service
-fi
+# Docker 이미지 빌드 (항상 캐시 없이 빌드)
+echo "🔨 Docker 이미지 빌드 (--no-cache)..."
+cd ../../services/web-service
+docker build --no-cache -t $IMAGE_NAME .
+cd ../../k8s/web-service
 
 # Kind에 이미지 로드
 echo "📦 Kind에 이미지 로드..."
@@ -67,6 +65,10 @@ fi
 # 사용하지 않는 Docker 이미지 정리
 echo "🧹 사용하지 않는 Docker 이미지 정리..."
 docker image prune -f
+
+# 빌드 캐시 정리 (캐시 남지 않도록)
+echo "🧹 빌드 캐시 정리..."
+docker builder prune -f
 
 echo ""
 echo "✅ web-service 배포 완료!"
