@@ -1,6 +1,7 @@
 <script>
   import { view, selectedService } from './state/appStore.js';
   import { theme } from './state/themeStore.js';
+  import { locale } from './state/localeStore.js';
   import Sidebar from './layout/Sidebar.svelte';
   import Footer from './layout/Footer.svelte';
   import Overview from './pages/Overview.svelte';
@@ -25,6 +26,14 @@
 
     <div class="flex-1 flex flex-col min-w-0" style="background: var(--bg-primary);">
   <header class="flex-shrink-0 flex justify-end items-center gap-2 min-h-[48px] py-0 px-9 mb-2">
+    <button
+      type="button"
+      class="lang-toggle-btn px-2 py-1 rounded text-sm font-medium border cursor-pointer transition-opacity hover:opacity-100 opacity-90"
+      style="background: transparent; color: var(--text-primary);"
+      on:click={() => locale.toggle()}
+      title={$locale === 'en' ? '한국어로 전환' : 'Switch to English'}
+      aria-label="Toggle language"
+    >{$locale === 'en' ? 'ENG' : '한'}</button>
     <button
       type="button"
       class="w-9 h-8 rounded-md border-0 cursor-pointer flex items-center justify-center text-sm font-semibold transition-opacity hover:opacity-100 opacity-90"
