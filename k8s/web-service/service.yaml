@@ -11,7 +11,7 @@ spec:
   - name: http
     port: 80
     targetPort: 80
-    nodePort: 30012
+    nodePort: 30000
     protocol: TCP
   selector:
     app: web-service

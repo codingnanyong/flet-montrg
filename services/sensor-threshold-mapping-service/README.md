@@ -1,85 +1,106 @@
-# Sensor Threshold Mapping Service
+# 🔗 Sensor Threshold Mapping Service
 
-센서-임계치 매핑 관리 API 서비스
+API for managing sensor–threshold mappings (which threshold applies to which sensor, with validity and enable/disable).
 
-## 기능
+## ✨ Features
 
-- 센서별 임계치 매핑 생성 및 조회
-- 센서별/임계치별 매핑 필터링
-- 매핑 활성화/비활성화
-- 유효 기간 관리 (effective_from, effective_to)
+- 📝 Create and query mappings per sensor or threshold
+- 🔍 Filter by sensor_id or threshold_id
+- 🔘 Enable / disable mappings
+- 📅 Validity window: `effective_from`, `effective_to`
+- ⏱️ `duration_seconds` for alert evaluation (e.g. 60)
 
-## API 엔드포인트
+## 🔌 API Endpoints
 
-### 매핑 관리
-- `POST /api/v1/mappings` - 매핑 생성
-- `GET /api/v1/mappings` - 매핑 목록 조회 (다양한 필터 지원)
-- `GET /api/v1/mappings/{map_id}` - 매핑 상세 조회
-- `GET /api/v1/mappings/sensor/{sensor_id}` - 센서별 매핑 목록 조회
-- `GET /api/v1/mappings/threshold/{threshold_id}` - 임계치별 매핑 목록 조회
-- `PUT /api/v1/mappings/{map_id}` - 매핑 수정
-- `DELETE /api/v1/mappings/{map_id}` - 매핑 삭제
-- `POST /api/v1/mappings/{map_id}/enable` - 매핑 활성화
-- `POST /api/v1/mappings/{map_id}/disable` - 매핑 비활성화
+### Mapping management
 
-### 기본 엔드포인트
-- `GET /` - 서비스 정보
-- `GET /health` - 헬스체크
-- `GET /ready` - 레디니스 체크
-- `GET /docs` - API 문서 (Swagger UI)
+- `POST /api/v1/mappings` — create mapping
+- `GET /api/v1/mappings` — list (with filters)
+- `GET /api/v1/mappings/{map_id}` — get one
+- `GET /api/v1/mappings/sensor/{sensor_id}` — list by sensor
+- `GET /api/v1/mappings/threshold/{threshold_id}` — list by threshold
+- `PUT /api/v1/mappings/{map_id}` — update
+- `DELETE /api/v1/mappings/{map_id}` — delete
+- `POST /api/v1/mappings/{map_id}/enable` — enable
+- `POST /api/v1/mappings/{map_id}/disable` — disable
 
-## 데이터 모델
+### Common endpoints
 
-### 매핑 필드
-- `map_id`: 매핑 ID (자동 생성)
-- `sensor_id`: 센서 ID
-- `threshold_id`: 임계치 ID
-- `duration_seconds`: 지속 시간 (초 단위, 기본값: 60)
-- `enabled`: 활성화 여부 (기본값: true)
-- `effective_from`: 유효 시작 시간
-- `effective_to`: 유효 종료 시간
-- `upd_dt`: 수정 시간
+- `GET /` — service info
+- `GET /health` — health check
+- `GET /ready` — readiness check
+- `GET /docs` — Swagger UI
 
-## 환경 변수
+## 📊 Data model
 
-- `APP_NAME`: 애플리케이션 이름 (기본값: Sensor Threshold Mapping Service)
-- `APP_VERSION`: 애플리케이션 버전 (기본값: 1.0.0)
-- `DATABASE_URL`: 데이터베이스 연결 URL
-- `THRESHOLDS_SERVICE_URL`: Thresholds 서비스 URL
-- `LOCATION_SERVICE_URL`: Location 서비스 URL
+### Mapping fields
 
-## 로컬 실행
+- `map_id` — ID (auto)
+- `sensor_id` — sensor ID
+- `threshold_id` — threshold ID
+- `duration_seconds` — duration in seconds (default: 60)
+- `enabled` — active or not (default: true)
+- `effective_from` — valid from
+- `effective_to` — valid to
+- `upd_dt` — last updated
+
+## ⚙️ Environment variables
+
+- `APP_NAME` — Application name (default: Sensor Threshold Mapping Service)
+- `APP_VERSION` — Application version (default: 1.0.0)
+- `DATABASE_URL` — Database connection URL
+- `THRESHOLDS_SERVICE_URL` — Thresholds service URL
+- `LOCATION_SERVICE_URL` — Location service URL
+
+## 🚀 Run
+
+### Local
 
 ```bash
-# 의존성 설치
 pip install -r requirements.txt
-
-# 환경 변수 설정
 cp env.example .env
-# .env 파일 편집
+# Edit .env as needed
 
-# 개발 서버 실행
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-## 테스트
+### Docker
 
 ```bash
-# 테스트 실행
-./tests/test.sh
+docker build -t sensor-threshold-mapping-service .
+docker run -p 8000:8000 --env-file .env sensor-threshold-mapping-service
+```
 
-# 또는 직접 pytest 실행
+### K8s (Kind)
+
+- **NodePort**: `30009` (see project [README](../../README.md) for port layout)
+
+```bash
+# From repo root
+kubectl apply -f k8s/sensor-threshold-mapping/
+# Or from this service dir:
+kubectl apply -f ../../k8s/sensor-threshold-mapping/
+```
+
+## 🧪 Tests
+
+```bash
+./tests/test.sh
+# or
 pytest tests/ -v
 ```
 
-## Kubernetes 배포
+## 🐛 Troubleshooting
 
-```bash
-cd k8s/sensor-threshold-mapping
-./deploy.sh
-```
+- DB connection failed: Check `DATABASE_URL`, DB server, network.
+- Empty or missing mappings: Verify data in `sensor_threshold_map`; check effective_from/effective_to and enabled flag.
 
-## 포트
+## 📚 References
 
-- HTTP: 30011
-- Metrics: 30240
+- [FastAPI](https://fastapi.tiangolo.com/)
+- [SQLAlchemy](https://docs.sqlalchemy.org/)
+- [Pydantic](https://docs.pydantic.dev/)
+- [Pytest](https://docs.pytest.org/)
+
+Last updated: February 2026
+

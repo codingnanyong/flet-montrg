@@ -1,78 +1,94 @@
-# Alert Subscription Service
+# 📋 Alert Subscription Service
 
-알람 구독 관리 API 서비스
+API service for managing alert subscriptions (who gets notified and where).
 
-## 기능
+## ✨ Features
 
-- 알람 구독 생성 및 조회
-- 구독자별 구독 관리
-- 위치 계층 구조별 구독 필터링 (plant, factory, building, floor, area)
-- 센서별/임계치 타입별 구독 필터링
-- 구독 활성화/비활성화
+- 📝 Create and query subscriptions
+- 👤 Manage subscriptions per subscriber
+- 🏭 Filter by location hierarchy (plant, factory, building, floor, area)
+- 🔧 Filter by sensor or threshold type
+- 🔘 Enable / disable subscriptions
 
-## API 엔드포인트
+## 🔌 API Endpoints
 
-### 구독 관리
-- `POST /api/v1/subscriptions` - 구독 생성
-- `GET /api/v1/subscriptions` - 구독 목록 조회 (다양한 필터 지원)
-- `GET /api/v1/subscriptions/{subscription_id}` - 구독 상세 조회
-- `GET /api/v1/subscriptions/subscriber/{subscriber}` - 구독자별 구독 목록 조회
-- `PUT /api/v1/subscriptions/{subscription_id}` - 구독 수정
-- `DELETE /api/v1/subscriptions/{subscription_id}` - 구독 삭제
-- `POST /api/v1/subscriptions/{subscription_id}/enable` - 구독 활성화
-- `POST /api/v1/subscriptions/{subscription_id}/disable` - 구독 비활성화
+### Subscription management
 
-### 기본 엔드포인트
-- `GET /` - 서비스 정보
-- `GET /health` - 헬스체크
-- `GET /ready` - 레디니스 체크
-- `GET /docs` - API 문서 (Swagger UI)
+- `POST /api/v1/subscriptions` — create subscription
+- `GET /api/v1/subscriptions` — list (with filters)
+- `GET /api/v1/subscriptions/{subscription_id}` — get one
+- `GET /api/v1/subscriptions/subscriber/{subscriber}` — list by subscriber
+- `PUT /api/v1/subscriptions/{subscription_id}` — update
+- `DELETE /api/v1/subscriptions/{subscription_id}` — delete
+- `POST /api/v1/subscriptions/{subscription_id}/enable` — enable
+- `POST /api/v1/subscriptions/{subscription_id}/disable` — disable
 
-## 데이터 모델
+### Common endpoints
 
-### 구독 필드
-- `subscription_id`: 구독 ID (자동 생성)
-- `plant`: 공장
-- `factory`: 공장명
-- `building`: 건물
-- `floor`: 층
-- `area`: 구역
-- `sensor_id`: 센서 ID
-- `threshold_type`: 임계치 타입
-- `min_level`: 최소 알람 레벨
-- `subscriber`: 구독자 이름
-- `notify_type`: 알림 타입 (email, kakao, sms, app)
-- `notify_id`: 알림 ID (email이면 이메일 주소, app이면 계정 이름)
-- `enabled`: 활성화 여부
-- `upd_dt`: 수정 시간
+- `GET /` — service info
+- `GET /health` — health check
+- `GET /ready` — readiness check
+- `GET /docs` — API docs (Swagger UI)
 
-## 환경 변수
+## 📐 Data model
 
-- `APP_NAME`: 애플리케이션 이름 (기본값: Alert Subscription Service)
-- `APP_VERSION`: 애플리케이션 버전 (기본값: 1.0.0)
-- `DATABASE_URL`: 데이터베이스 연결 URL
-- `LOCATION_SERVICE_URL`: Location 서비스 URL
+### Subscription fields
 
-## 로컬 실행
+- `subscription_id` — ID (auto)
+- `plant` — plant
+- `factory` — factory name
+- `building` — building
+- `floor` — floor
+- `area` — area
+- `sensor_id` — sensor ID
+- `threshold_type` — threshold type
+- `min_level` — minimum alert level
+- `subscriber` — subscriber name
+- `notify_type` — notification type: `email`, `kakao`, `sms`, `app`
+- `notify_id` — contact (e.g. email address or app account)
+- `enabled` — whether subscription is active
+- `upd_dt` — last updated
+
+## ⚙️ Environment variables
+
+- `APP_NAME` — Application name (default: Alert Subscription Service)
+- `APP_VERSION` — Application version (default: 1.0.0)
+- `DATABASE_URL` — Database connection URL
+- `LOCATION_SERVICE_URL` — Location service URL
+
+## 🚀 Run
+
+### Local
 
 ```bash
-# 의존성 설치
 pip install -r requirements.txt
-
-# 환경 변수 설정
 cp env.example .env
-# .env 파일 편집
+# Edit .env as needed
 
-# 개발 서버 실행
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-## Docker 실행
+### Docker
 
 ```bash
-# Docker 이미지 빌드
 docker build -t flet-montrg/alert-subscription-service:latest .
-
-# 컨테이너 실행
 docker run -p 8000:8000 --env-file .env flet-montrg/alert-subscription-service:latest
 ```
+
+### K8s (Kind)
+
+- **NodePort**: `30007` (see project [README](../../README.md) for port layout)
+
+## 🐛 Troubleshooting
+
+- DB connection failed: Check `DATABASE_URL`, DB server, network.
+- Location service unreachable: Verify `LOCATION_SERVICE_URL` for hierarchy-based filters.
+
+## 📚 References
+
+- [FastAPI](https://fastapi.tiangolo.com/)
+- [SQLAlchemy](https://docs.sqlalchemy.org/)
+- [Pydantic](https://docs.pydantic.dev/)
+- [Pytest](https://docs.pytest.org/)
+
+Last updated: February 2026
