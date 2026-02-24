@@ -1,56 +1,74 @@
-# Felt Montrg API Documentation (Web UI)
+# 🌐 Web Service (APIs Web Service)
 
-통합 Swagger UI 웹 클라이언트. Svelte + Vite + Tailwind로 구성됩니다.  
-백엔드는 `integrated-swagger-service`(프록시/API)를 사용합니다.
+Unified Swagger UI web client for API documentation. Built with Svelte 4, Vite 5, and Tailwind CSS. Backend: `integrated-swagger-service` (proxy/API).
 
-## 스택
+## ✨ Stack
 
-- **Svelte 4** – UI 프레임워크
-- **Vite 5** – 빌드 도구
-- **Tailwind CSS (CDN)** – 스타일
-- **Swagger UI** – API 문서 표시
+- **Svelte 4** — UI framework
+- **Vite 5** — build tool
+- **Tailwind CSS (CDN)** — styling
+- **Swagger UI** — API docs
 
-## npm 스크립트
+## 📜 npm scripts
 
 ```bash
-# 의존성 설치 (최초 1회)
+# Install dependencies (first time)
 npm install
 
-# 개발 서버 (핫 리로드)
+# Dev server (hot reload)
 npm run dev
 
-# 프로덕션 빌드
+# Production build
 npm run build
 
-# 빌드 결과 미리보기
+# Preview build
 npm run preview
 ```
 
-## 설정
+## ⚙️ Config
 
-- **API_BASE**: `?apiBase=URL` 쿼리로 지정. 미지정 시 `window.location.origin` 사용.
-- **테마**: localStorage `felt-montrg-theme` (light | dark)
+- **API base**: Set via `?apiBase=URL`. If omitted, `window.location.origin` is used.
+- **Theme**: localStorage key `felt-montrg-theme` (`light` | `dark`)
 
-## 로컬 개발
+## 🚀 Run
+
+### Local
 
 ```bash
-# nvm 사용 시 (터미널에서 npm을 못 찾을 때)
+# If using nvm and npm not found in shell
 source ~/.zshrc
-# 또는
+# or
 export NVM_DIR="$HOME/.nvm" && [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
-# 개발 서버 실행 (기본 http://localhost:5173)
 npm run dev
 ```
 
-브라우저: `http://localhost:5173`  
-API가 다른 호스트/포트일 경우: `http://localhost:5173?apiBase=http://localhost:30005`
+- App: <http://localhost:5173>
+- With custom API host: <http://localhost:5173?apiBase=http://localhost:30001>
 
-## 배포
+### K8s (Kind)
+
+- **NodePort**: `30000` (see project [README](../../README.md) for port layout)
+- Deploy: `Dockerfile` and `k8s/web-service/` manifests.
+
+## 📦 Deploy
 
 ```bash
 npm run build
 ```
 
-`dist/` 폴더를 nginx, Apache, S3+CloudFront 등 정적 호스팅에 배포합니다.  
-Docker/K8s: `Dockerfile` 및 `k8s/web-service/` 매니페스트 사용.
+Serve the `dist/` folder with nginx, Apache, S3+CloudFront, or any static host. For Docker/K8s, use the repo `Dockerfile` and `k8s/web-service/` manifests.
+
+## 🐛 Troubleshooting
+
+- Build fails: Run `npm install` and use a matching Node version (e.g. 18+). Check dependency errors.
+- API not loading: Set `apiBase` (e.g. `?apiBase=http://localhost:30001`) so the client can reach integrated-swagger-service.
+
+## 📚 References
+
+- [Svelte](https://svelte.dev/)
+- [Vite](https://vitejs.dev/)
+- [Swagger UI](https://swagger.io/tools/swagger-ui/)
+
+Last updated: February 2026
+

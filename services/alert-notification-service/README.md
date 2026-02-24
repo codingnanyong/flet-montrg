@@ -1,52 +1,77 @@
-# Alert Notification Service
+# 📬 Alert Notification Service
 
-알림 발송 및 발송 이력 관리 API 서비스입니다.
+API service for sending notifications and managing delivery history.
 
-## 기능
+## ✨ Features
 
-- 알림 발송 이력 관리
-- 알림 상태 추적 (PENDING, SENT, FAILED, RETRYING)
-- 재시도 로직 지원
-- 알람별/구독별 알림 조회
-- 대기 중/실패한 알림 조회
+- 📋 Notification delivery history
+- 📊 Status tracking: `PENDING`, `SENT`, `FAILED`, `RETRYING`
+- 🔄 Retry logic
+- 🔍 Notifications by alert or by subscription
+- ⏳ Pending and failed notification queries
 
-## API 엔드포인트
+## 🔌 API Endpoints
 
-### 알림 관리
-- `POST /api/v1/notifications/` - 새 알림 생성
-- `GET /api/v1/notifications/` - 알림 목록 조회
-- `GET /api/v1/notifications/{notification_id}` - 특정 알림 조회
-- `PUT /api/v1/notifications/{notification_id}` - 알림 수정
-- `DELETE /api/v1/notifications/{notification_id}` - 알림 삭제
+### Notification CRUD
 
-### 알림 상태 관리
-- `POST /api/v1/notifications/{notification_id}/mark-sent` - 발송 완료로 표시
-- `POST /api/v1/notifications/{notification_id}/mark-failed` - 실패로 표시
-- `POST /api/v1/notifications/{notification_id}/mark-retrying` - 재시도 중으로 표시
+- `POST /api/v1/notifications/` — create notification
+- `GET /api/v1/notifications/` — list notifications
+- `GET /api/v1/notifications/{notification_id}` — get one
+- `PUT /api/v1/notifications/{notification_id}` — update
+- `DELETE /api/v1/notifications/{notification_id}` — delete
 
-### 조회 엔드포인트
-- `GET /api/v1/notifications/alert/{alert_id}` - 알람별 알림 목록
-- `GET /api/v1/notifications/subscription/{subscription_id}` - 구독별 알림 목록
-- `GET /api/v1/notifications/pending` - 대기 중인 알림 목록
-- `GET /api/v1/notifications/failed` - 실패한 알림 목록
+### Status updates
 
-## 환경 변수
+- `POST /api/v1/notifications/{notification_id}/mark-sent` — mark as sent
+- `POST /api/v1/notifications/{notification_id}/mark-failed` — mark as failed
+- `POST /api/v1/notifications/{notification_id}/mark-retrying` — mark as retrying
 
-`.env` 파일을 참고하거나 `env.example`을 복사하여 설정하세요.
+### Query endpoints
 
-## 실행
+- `GET /api/v1/notifications/alert/{alert_id}` — notifications for an alert
+- `GET /api/v1/notifications/subscription/{subscription_id}` — notifications for a subscription
+- `GET /api/v1/notifications/pending` — pending notifications
+- `GET /api/v1/notifications/failed` — failed notifications
+
+## ⚙️ Environment variables
+
+Copy `env.example` to `.env` and set values. Common variables: `DATABASE_URL`, `HOST`, `PORT` (default 8000), `LOG_LEVEL`, `CORS_ORIGINS`.
+
+## 🚀 Run
+
+### Local
 
 ```bash
-# 로컬 개발
 uvicorn app.main:app --reload
+```
 
-# Docker
+### Docker
+
+```bash
 docker build -t alert-notification-service .
 docker run -p 8000:8000 alert-notification-service
 ```
 
-## 테스트
+### K8s (Kind)
+
+- **NodePort**: `30008` (see project [README](../../README.md) for port layout)
+
+## 🧪 Tests
 
 ```bash
 pytest
 ```
+
+## 🐛 Troubleshooting
+
+- DB connection failed: Check `DATABASE_URL`, DB server, network.
+- Notifications not sending: Verify alert/subscription IDs and notify_type/notify_id; check service logs.
+
+## 📚 References
+
+- [FastAPI](https://fastapi.tiangolo.com/)
+- [SQLAlchemy](https://docs.sqlalchemy.org/)
+- [Pydantic](https://docs.pydantic.dev/)
+- [Pytest](https://docs.pytest.org/)
+
+Last updated: February 2026
