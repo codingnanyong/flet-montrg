@@ -1,4 +1,4 @@
-# 🌐 Web Service (Dashboard)
+# 🌐 Web Service (APIs Web Service)
 
 Unified Swagger UI web client for API documentation. Built with Svelte 4, Vite 5, and Tailwind CSS. Backend: `integrated-swagger-service` (proxy/API).
 

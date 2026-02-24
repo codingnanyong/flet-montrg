@@ -36,7 +36,7 @@ flet-montrg/
 │   ├── alert-notification/               # alert-notification-service deployment
 │   ├── sensor-threshold-mapping/         # sensor-threshold-mapping-service deployment
 │   ├── integrated-swagger/               # integrated-swagger-service deployment
-│   └── web-service/                      # web-service (dashboard) deployment
+│   └── web-service/                      # APIs web-service deployment
 ├── scripts/                              # Cluster and deployment scripts
 │   ├── recreate-cluster.sh
 │   └── redeploy-all.sh
@@ -100,8 +100,8 @@ flet-montrg/
 
 ## 🛠️ Technology Stack
 
-- 🐍 **Backend**: Python/FastAPI
 - 🌐 **Frontend**: Svelte 4, Vite 5 (web-service)
+- 🐍 **Backend**: Python/FastAPI
 - 🐳 **Container**: Docker
 - ☸️ **Orchestration**: Kubernetes (Kind)
 - 📊 **Monitoring**: Kubernetes Dashboard, Prometheus
