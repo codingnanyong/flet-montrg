@@ -128,25 +128,25 @@ def create_alert(loc_id, measured_value, threshold_id):
 const BASE_URL = "http://localhost:30007/api/v1/alerts/";
 
 const sensors = {
-  "A011": { sensor_id: "TEMPIOT-A011", area: "Materials warehouse" },
-  "A015": { sensor_id: "TEMPIOT-A015", area: "HF workshop" },
-  "A027": { sensor_id: "TEMPIOT-A027", area: "[3P] CTM line 1" },
-  "A034": { sensor_id: "TEMPIOT-A034", area: "Spray booth" },
+  A011: { sensor_id: "TEMPIOT-A011", area: "Materials warehouse" },
+  A015: { sensor_id: "TEMPIOT-A015", area: "HF workshop" },
+  A027: { sensor_id: "TEMPIOT-A027", area: "[3P] CTM line 1" },
+  A034: { sensor_id: "TEMPIOT-A034", area: "Spray booth" },
 };
 
 const thresholds = {
-  1: { type: "pcv_temperature", level: "green", min: 0.00, max: 30.90 },
-  2: { type: "pcv_temperature", level: "yellow", min: 31.00, max: 32.90 },
-  3: { type: "pcv_temperature", level: "orange", min: 33.00, max: null },
+  1: { type: "pcv_temperature", level: "green", min: 0.0, max: 30.9 },
+  2: { type: "pcv_temperature", level: "yellow", min: 31.0, max: 32.9 },
+  3: { type: "pcv_temperature", level: "orange", min: 33.0, max: null },
 };
 
 function createAlert(locId, measuredValue) {
   let thresholdId, alertLevel;
 
-  if (measuredValue <= 30.90) {
+  if (measuredValue <= 30.9) {
     thresholdId = 1;
     alertLevel = "green";
-  } else if (measuredValue <= 32.90) {
+  } else if (measuredValue <= 32.9) {
     thresholdId = 2;
     alertLevel = "yellow";
   } else {
@@ -168,18 +168,18 @@ function createAlert(locId, measuredValue) {
     measured_value: measuredValue,
     threshold_min: threshold.min,
     threshold_max: threshold.max,
-    message: `Temperature alert: ${sensor.area} — reading ${measuredValue}°C`
+    message: `Temperature alert: ${sensor.area} — reading ${measuredValue}°C`,
   };
 
   return fetch(BASE_URL, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     },
-    body: JSON.stringify(data)
+    body: JSON.stringify(data),
   })
-    .then(response => response.json())
-    .then(data => {
+    .then((response) => response.json())
+    .then((data) => {
       console.log("Alert created:", data);
       return data;
     });
@@ -189,6 +189,7 @@ function createAlert(locId, measuredValue) {
 ## 📍 Per-sensor JSON samples
 
 ### A011 — Materials warehouse (CSI, SinPyeong, MX-1, 1F)
+
 ```json
 {
   "loc_id": "A011",
@@ -199,13 +200,14 @@ function createAlert(locId, measuredValue) {
   "threshold_type": "pcv_temperature",
   "threshold_level": "green",
   "measured_value": 22.5,
-  "threshold_min": 0.00,
-  "threshold_max": 30.90,
+  "threshold_min": 0.0,
+  "threshold_max": 30.9,
   "message": "Materials warehouse temperature OK"
 }
 ```
 
 ### A015 — HF workshop (CSI, SinPyeong, MX-1, 2F)
+
 ```json
 {
   "loc_id": "A015",
@@ -216,13 +218,14 @@ function createAlert(locId, measuredValue) {
   "threshold_type": "pcv_temperature",
   "threshold_level": "yellow",
   "measured_value": 32.5,
-  "threshold_min": 31.00,
-  "threshold_max": 32.90,
+  "threshold_min": 31.0,
+  "threshold_max": 32.9,
   "message": "HF workshop temperature warning"
 }
 ```
 
 ### A027 — [3P] CTM line 1 (CSI, SinPyeong, PW Center, 1F)
+
 ```json
 {
   "loc_id": "A027",
@@ -233,13 +236,14 @@ function createAlert(locId, measuredValue) {
   "threshold_type": "pcv_temperature",
   "threshold_level": "orange",
   "measured_value": 35.0,
-  "threshold_min": 33.00,
+  "threshold_min": 33.0,
   "threshold_max": null,
   "message": "CTM line 1 temperature critical"
 }
 ```
 
 ### A034 — Spray booth (CSI, JangNim, Bottom, 1F)
+
 ```json
 {
   "loc_id": "A034",
@@ -250,7 +254,7 @@ function createAlert(locId, measuredValue) {
   "threshold_type": "pcv_temperature",
   "threshold_level": "orange",
   "measured_value": 34.5,
-  "threshold_min": 33.00,
+  "threshold_min": 33.0,
   "threshold_max": null,
   "message": "Spray booth temperature critical"
 }
@@ -268,36 +272,36 @@ Each sensor maps to **Yellow (threshold_id: 2)** and **Orange (threshold_id: 3)*
 
 ### `threshold_map_id` per sensor
 
-| Sensor ID | Yellow (threshold_id: 2) | Orange (threshold_id: 3) |
-|-----------|---------------------------|---------------------------|
-| TEMPIOT-A011 | map_id: 1 | map_id: 2 |
-| TEMPIOT-A012 | map_id: 3 | map_id: 4 |
-| TEMPIOT-A013 | map_id: 5 | map_id: 6 |
-| TEMPIOT-A014 | map_id: 7 | map_id: 8 |
-| TEMPIOT-A015 | map_id: 9 | map_id: 10 |
-| TEMPIOT-A016 | map_id: 11 | map_id: 12 |
-| TEMPIOT-A017 | map_id: 13 | map_id: 14 |
-| TEMPIOT-A018 | map_id: 15 | map_id: 16 |
-| TEMPIOT-A019 | map_id: 17 | map_id: 18 |
-| TEMPIOT-A020 | map_id: 19 | map_id: 20 |
-| TEMPIOT-A021 | map_id: 21 | map_id: 22 |
-| TEMPIOT-A022 | map_id: 23 | map_id: 24 |
-| TEMPIOT-A023 | map_id: 25 | map_id: 26 |
-| TEMPIOT-A024 | map_id: 27 | map_id: 28 |
-| TEMPIOT-A025 | map_id: 29 | map_id: 30 |
-| TEMPIOT-A026 | map_id: 31 | map_id: 32 |
-| TEMPIOT-A027 | map_id: 33 | map_id: 34 |
-| TEMPIOT-A028 | map_id: 35 | map_id: 36 |
-| TEMPIOT-A029 | map_id: 37 | map_id: 38 |
-| TEMPIOT-A030 | map_id: 39 | map_id: 40 |
-| TEMPIOT-A031 | map_id: 41 | map_id: 42 |
-| TEMPIOT-A032 | map_id: 43 | map_id: 44 |
-| TEMPIOT-A033 | map_id: 45 | map_id: 46 |
-| TEMPIOT-A034 | map_id: 47 | map_id: 48 |
-| TEMPIOT-A035 | map_id: 49 | map_id: 50 |
-| TEMPIOT-A036 | map_id: 51 | map_id: 52 |
-| TEMPIOT-A037 | map_id: 53 | map_id: 54 |
-| TEMPIOT-A038 | map_id: 55 | map_id: 56 |
+| Sensor ID    | Yellow (threshold_id: 2) | Orange (threshold_id: 3) |
+| ------------ | ------------------------ | ------------------------ |
+| TEMPIOT-A011 | map_id: 1                | map_id: 2                |
+| TEMPIOT-A012 | map_id: 3                | map_id: 4                |
+| TEMPIOT-A013 | map_id: 5                | map_id: 6                |
+| TEMPIOT-A014 | map_id: 7                | map_id: 8                |
+| TEMPIOT-A015 | map_id: 9                | map_id: 10               |
+| TEMPIOT-A016 | map_id: 11               | map_id: 12               |
+| TEMPIOT-A017 | map_id: 13               | map_id: 14               |
+| TEMPIOT-A018 | map_id: 15               | map_id: 16               |
+| TEMPIOT-A019 | map_id: 17               | map_id: 18               |
+| TEMPIOT-A020 | map_id: 19               | map_id: 20               |
+| TEMPIOT-A021 | map_id: 21               | map_id: 22               |
+| TEMPIOT-A022 | map_id: 23               | map_id: 24               |
+| TEMPIOT-A023 | map_id: 25               | map_id: 26               |
+| TEMPIOT-A024 | map_id: 27               | map_id: 28               |
+| TEMPIOT-A025 | map_id: 29               | map_id: 30               |
+| TEMPIOT-A026 | map_id: 31               | map_id: 32               |
+| TEMPIOT-A027 | map_id: 33               | map_id: 34               |
+| TEMPIOT-A028 | map_id: 35               | map_id: 36               |
+| TEMPIOT-A029 | map_id: 37               | map_id: 38               |
+| TEMPIOT-A030 | map_id: 39               | map_id: 40               |
+| TEMPIOT-A031 | map_id: 41               | map_id: 42               |
+| TEMPIOT-A032 | map_id: 43               | map_id: 44               |
+| TEMPIOT-A033 | map_id: 45               | map_id: 46               |
+| TEMPIOT-A034 | map_id: 47               | map_id: 48               |
+| TEMPIOT-A035 | map_id: 49               | map_id: 50               |
+| TEMPIOT-A036 | map_id: 51               | map_id: 52               |
+| TEMPIOT-A037 | map_id: 53               | map_id: 54               |
+| TEMPIOT-A038 | map_id: 55               | map_id: 56               |
 
 **ℹ️ Note:** All mappings use `enabled=true`.
 
@@ -434,13 +438,11 @@ def create_alert_with_map(sensor_id, loc_id, measured_value, area_name):
 - Each pairs with `loc_id` `A011` … `A038`
 - Each maps to Yellow (threshold_id: 2) and Orange (threshold_id: 3)
 
----
+## 📬 Notification create API examples
 
-# 📬 Notification create API examples
+### `POST /api/v1/notifications/`
 
-## `POST /api/v1/notifications/`
-
-### 1. cURL
+#### 1. cURL
 
 ```bash
 curl -X POST "http://localhost:30009/api/v1/notifications/" \
@@ -453,7 +455,7 @@ curl -X POST "http://localhost:30009/api/v1/notifications/" \
   }'
 ```
 
-### 2. Python (`requests`)
+#### 2. Python (`requests`)
 
 ```python
 import requests
@@ -473,7 +475,7 @@ print(response.status_code)
 print(response.json())
 ```
 
-### 3. JavaScript (`fetch`)
+#### 3. JavaScript (`fetch`)
 
 ```javascript
 const url = "http://localhost:30009/api/v1/notifications/";
@@ -482,24 +484,24 @@ const data = {
   alert_id: 1,
   subscription_id: 1,
   notify_type: "email",
-  notify_id: "user@example.com"
+  notify_id: "user@example.com",
 };
 
 fetch(url, {
   method: "POST",
   headers: {
-    "Content-Type": "application/json"
+    "Content-Type": "application/json",
   },
-  body: JSON.stringify(data)
+  body: JSON.stringify(data),
 })
-  .then(response => response.json())
-  .then(data => console.log(data))
-  .catch(error => console.error("Error:", error));
+  .then((response) => response.json())
+  .then((data) => console.log(data))
+  .catch((error) => console.error("Error:", error));
 ```
 
-## 📣 Notify types
+### 📣 Notify types
 
-### 📧 Email
+#### 📧 Email
 
 ```json
 {
@@ -510,7 +512,7 @@ fetch(url, {
 }
 ```
 
-### 💬 KakaoTalk
+#### 💬 KakaoTalk
 
 ```json
 {
@@ -521,7 +523,7 @@ fetch(url, {
 }
 ```
 
-### 📱 SMS
+#### 📱 SMS
 
 ```json
 {
@@ -532,7 +534,7 @@ fetch(url, {
 }
 ```
 
-### 📲 App push
+#### 📲 App push
 
 ```json
 {
@@ -543,7 +545,7 @@ fetch(url, {
 }
 ```
 
-## 🔗 End-to-end: alert then notification
+### 🔗 End-to-end: alert then notification
 
 ```python
 import requests
@@ -584,7 +586,7 @@ notification = notification_response.json()
 print(f"Notification created: {notification['notification_id']}")
 ```
 
-## 📤 Sample response
+### 📤 Sample response
 
 ```json
 {
@@ -602,9 +604,10 @@ print(f"Notification created: {notification['notification_id']}")
 }
 ```
 
-## 📝 Field reference
+### 📝 Field reference
 
 **Required:**
+
 - `alert_id` (int) — ID of the created alert
 - `subscription_id` (int) — `subscription_id` in `alert_subscriptions`
 - `notify_type` — one of `"email"`, `"kakao"`, `"sms"`, `"app"`
@@ -615,12 +618,13 @@ print(f"Notification created: {notification['notification_id']}")
   - **app:** app user id
 
 **Auto-filled:**
+
 - `notification_id`
 - `status` (default `"PENDING"`)
 - `try_count` (default `0`)
 - `created_time` (KST in responses)
 - `last_try_time`, `sent_time`, `fail_reason` (nullable)
 
-## 🧪 Try in integrated Swagger UI
+### 🧪 Try in integrated Swagger UI
 
 Open `http://localhost:30005/swagger` → **alert-notification-service** → `POST /api/v1/notifications/`.
