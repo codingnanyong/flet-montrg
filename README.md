@@ -11,10 +11,26 @@
 
 IoT sensor-based apparent temperature data monitoring and notification system.
 
+## 📚 Documentation
+
+| Document | Description |
+|----------|-------------|
+| **[docs/README.md](docs/README.md)** | Documentation hub (index) |
+| [docs/release/README.md](docs/release/README.md) | Release notes index (per version) |
+| [docs/proposals/MSA_EXTENSION_PROPOSAL.md](docs/proposals/MSA_EXTENSION_PROPOSAL.md) | MSA extension & architecture proposal |
+| [docs/examples/ALERT_API_EXAMPLES.md](docs/examples/ALERT_API_EXAMPLES.md) | Alert & notification API examples |
+| `services/*/README.md` | Per-service API & local run |
+
+Add new project-wide docs to the table in **`docs/README.md`** for easier onboarding.
+
 ## 📁 Project Structure
 
 ```text
 flet-montrg/
+├── docs/                                 # Project docs
+│   ├── release/                          # Version release notes (index: release/README.md)
+│   ├── proposals/                        # Architecture / MSA proposals
+│   └── examples/                         # API examples (e.g. alerts)
 ├── services/                              # Microservices source code
 │   ├── thresholds-service/               # Threshold CRUD API
 │   ├── location-service/                 # Sensor location information API
@@ -40,7 +56,7 @@ flet-montrg/
 ├── scripts/                              # Cluster and deployment scripts
 │   ├── recreate-cluster.sh
 │   └── redeploy-all.sh
-└── README.md                             # Project documentation
+└── README.md                             # Project overview & quick links
 ```
 
 ## 🔌 Service Ports

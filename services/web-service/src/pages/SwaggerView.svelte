@@ -40,6 +40,15 @@
     swaggerUI.set(ui);
   }
 
+  function handleServiceSelect(e) {
+    selectedService.set(e.target.value);
+  }
+
+  function handleReloadClick() {
+    // 강제로 refreshTrigger를 변경해 Swagger UI 전체를 재초기화
+    refreshTrigger.update((n) => n + 1);
+  }
+
   // locale 변경 시 Swagger UI 내 서비스 설명 문구 갱신
   $: if ($view === 'swagger' && !$loading && $locale) {
     setTimeout(() => applyServiceDescriptions($locale), 0);
@@ -49,10 +58,6 @@
     const _ = $refreshTrigger;
     // Defer so #swagger-ui exists in DOM before SwaggerUIBundle mounts
     setTimeout(() => loadSwagger(), 0);
-  }
-
-  function handleServiceSelect(e) {
-    selectedService.set(e.target.value);
   }
 </script>
 
@@ -89,7 +94,28 @@
           {/each}
         </select>
       </label>
+
+      <button
+        type="button"
+        class="text-xs px-3 py-1.5 rounded border"
+        style="border-color: var(--border); color: var(--text-secondary); background: var(--bg-secondary);"
+        on:click={handleReloadClick}
+      >
+        {L.reloadSwagger || 'Reload'}
+      </button>
     </div>
+
+    <!-- 화면 하단에서도 바로 재로딩 가능 (Cancel 이후 Execute 미표시 등) -->
+    <button
+      type="button"
+      class="fixed bottom-5 right-5 z-[60] text-xs px-3 py-2 rounded-full border shadow"
+      style="border-color: var(--border); color: var(--text-primary); background: var(--bg-secondary); box-shadow: var(--shadow-card);"
+      on:click={handleReloadClick}
+      aria-label={L.reloadSwagger || 'Reload'}
+      title={L.reloadSwagger || 'Reload'}
+    >
+      ⟳ {L.reloadSwagger || 'Reload'}
+    </button>
 
     <div id="swagger-ui-anchor" class="mt-2">
       <div id="swagger-ui" style="--swagger-ui-font-size: 14px;"></div>
