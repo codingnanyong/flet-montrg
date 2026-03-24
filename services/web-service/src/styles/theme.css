@@ -129,7 +129,7 @@ a:hover {
 #swagger .swagger-ui .auth-wrapper,
 #swagger .swagger-ui .auth-container,
 #swagger .swagger-ui .scheme-container,
-#swagger .swagger-ui .btn-group,
+/* Do NOT hide .btn-group globally — Try it out uses the same class for Execute/Clear */
 #swagger .swagger-ui [class*="information"],
 #swagger .swagger-ui [class*="auth-wrapper"] {
   display: none !important;
@@ -144,6 +144,12 @@ a:hover {
 }
 #swagger .swagger-ui > section:first-of-type .information-container,
 #swagger .swagger-ui > section:first-of-type .info {
+  display: none !important;
+}
+/* Scheme / Authorize bar only (not opblock Execute/Clear) */
+#swagger .swagger-ui .scheme-container .btn-group,
+#swagger .swagger-ui .auth-wrapper .btn-group,
+#swagger .swagger-ui .auth-container .btn-group {
   display: none !important;
 }
 /* 3) scheme-container 전용 — 스킴 선택 영역 완전 제거 */
