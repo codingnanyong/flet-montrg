@@ -499,9 +499,9 @@ fetch(url, {
   .catch((error) => console.error("Error:", error));
 ```
 
-## 📣 Notify types
+### 📣 Notify types
 
-### 📧 Email
+#### 📧 Email
 
 ```json
 {
