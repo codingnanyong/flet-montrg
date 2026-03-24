@@ -3,6 +3,7 @@
 ## 📋 Current state
 
 ### Existing services & ports (k8s `flet-montrg` namespace, NodePort mapping)
+
 - ✅ **thresholds-service** (port 30001): threshold CRUD
 - ✅ **location-service** (port 30002): location & sensor metadata
 - ✅ **realtime-service** (port 30003): real-time reads (depends on thresholds, location)
@@ -14,10 +15,12 @@
 - ✅ **sensor-threshold-mapping-service** (port 30011): per-sensor threshold mapping
 
 ### Available ports (k8s NodePort 80:3xxxx)
+
 - **30010**: alert-evaluation-service (planned, internal — no public exposure required)
 - **30012+**: reserved for future use (30011 used by sensor-threshold-mapping-service)
 
 ### New requirements (ERD-driven)
+
 - 📊 **alerts**: store alert history
 - 📧 **alert_subscriptions**: subscriptions (factory / building / floor / area)
 - 📨 **alert_notifications**: email delivery history
@@ -94,6 +97,7 @@
 ### 1. alert-service
 
 **API endpoints:**
+
 ```
 POST   /api/v1/alerts                    # Create alert
 GET    /api/v1/alerts                    # List alerts
@@ -104,6 +108,7 @@ PUT    /api/v1/alerts/{alert_id}/resolve # Resolve
 ```
 
 **Inter-service calls:**
+
 ```python
 # sensor-threshold-mapping-service
 GET /api/v1/mappings/sensor/{sensor_id}
@@ -119,6 +124,7 @@ GET /api/v1/location/{sensor_id}
 ```
 
 **Alert creation logic:**
+
 ```python
 # ❌ Legacy (not recommended): check on every realtime-service call
 # ✅ Preferred: alert-evaluation-service validates continuously in background
@@ -154,6 +160,7 @@ async def evaluate_thresholds():
 ### 2. alert-subscription-service
 
 **API endpoints:**
+
 ```
 POST   /api/v1/subscriptions             # Create
 GET    /api/v1/subscriptions             # List
@@ -170,6 +177,7 @@ GET    /api/v1/subscriptions/match
 ```
 
 **Location matching examples:**
+
 ```python
 # factory only → all subscriptions for that factory
 GET /api/v1/subscriptions/match?factory=SinPyeong
@@ -185,6 +193,7 @@ GET /api/v1/subscriptions/match?factory=SinPyeong&building=F-2001&floor=1&area=A
 ```
 
 **Matching query:**
+
 ```sql
 -- Subscriptions that match alert location
 SELECT * FROM alert_subscriptions
@@ -205,6 +214,7 @@ WHERE enabled = true
 ### 3. alert-notification-service
 
 **API endpoints:**
+
 ```
 POST   /api/v1/notifications/send        # Send request
 GET    /api/v1/notifications             # Delivery history
@@ -214,6 +224,7 @@ PUT    /api/v1/notifications/{notification_id}/retry  # Retry
 ```
 
 **Inter-service calls:**
+
 ```python
 # alert-service
 GET /api/v1/alerts/{alert_id}
@@ -225,6 +236,7 @@ GET /api/v1/subscriptions/match?factory=...&building=...
 ```
 
 **Notification flow:**
+
 ```
 1. alert-service creates alert
 2. alert-service requests send from notification-service
@@ -242,6 +254,7 @@ GET /api/v1/subscriptions/match?factory=...&building=...
 ### 4. sensor-threshold-mapping-service
 
 **API endpoints:**
+
 ```
 POST   /api/v1/mappings                 # Create
 GET    /api/v1/mappings                 # List
@@ -253,6 +266,7 @@ GET    /api/v1/mappings/active/sensor/{sensor_id}  # Active mappings
 ```
 
 **Inter-service calls:**
+
 ```python
 # thresholds-service
 GET /api/v1/thresholds/{threshold_id}
@@ -264,6 +278,7 @@ GET /api/v1/location/{sensor_id}
 ```
 
 **Active mapping query:**
+
 ```sql
 SELECT * FROM sensor_threshold_map
 WHERE sensor_id = :sensor_id
@@ -274,6 +289,7 @@ ORDER BY threshold_id
 ```
 
 **Schema change:**
+
 ```sql
 -- ❌ Old (hours only)
 duration_hours int4 DEFAULT 1 NOT NULL
@@ -286,6 +302,7 @@ duration_seconds int4 DEFAULT 60 NOT NULL  -- default 60s (1 min)
 ```
 
 **Meaning of `duration_seconds`:**
+
 - Minimum time the value must **stay** beyond the threshold before raising an alert (seconds)
 - e.g. `duration_seconds = 300` → breach must persist 5 minutes before alert
 - Used for deduplication and noise reduction
@@ -295,16 +312,19 @@ duration_seconds int4 DEFAULT 60 NOT NULL  -- default 60s (1 min)
 ### 5. alert-evaluation-service (threshold worker)
 
 **Role:**
+
 - Scan `temperature_raw` in the background
 - Evaluate per-sensor threshold breaches
 - On breach, call alert-service to create alerts
 
 **Execution:**
+
 - **Scheduler**: APScheduler or Celery Beat
 - **Interval**: e.g. every 1 minute (configurable)
 - **Concurrency**: `max_instances=1` to avoid overlap
 
 **Optional monitoring APIs:**
+
 ```
 GET    /health                    # Health
 GET    /status                    # Worker status
@@ -313,6 +333,7 @@ GET    /metrics                   # Metrics (records processed, etc.)
 ```
 
 **Inter-service calls:**
+
 ```python
 # sensor-threshold-mapping-service
 GET /api/v1/mappings/active/sensor/{sensor_id}
@@ -330,6 +351,7 @@ POST /api/v1/alerts
 ```
 
 **Core loop:**
+
 ```python
 async def evaluate_thresholds():
     """Main threshold evaluation loop"""
@@ -378,6 +400,7 @@ async def evaluate_thresholds():
 ```
 
 **Duration check:**
+
 ```python
 async def check_duration_exceeded(
     sensor_id: str,
@@ -480,6 +503,7 @@ Airflow ETL (every 10 min)
 ### How to run alert-evaluation-service
 
 **Option 1: Scheduler (recommended)**
+
 ```python
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
@@ -494,6 +518,7 @@ scheduler.start()
 ```
 
 **Option 2: Event-driven**
+
 ```python
 # Webhook after Airflow ETL
 # Or DB triggers
@@ -501,21 +526,22 @@ scheduler.start()
 ```
 
 **Option 3: Kubernetes CronJob**
+
 ```yaml
 apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: alert-evaluation
 spec:
-  schedule: "*/1 * * * *"  # every minute
+  schedule: "*/1 * * * *" # every minute
   jobTemplate:
     spec:
       template:
         spec:
           containers:
-          - name: alert-evaluation
-            image: flet-montrg/alert-evaluation-service:latest
-            command: ["python", "evaluate_thresholds.py"]
+            - name: alert-evaluation
+              image: flet-montrg/alert-evaluation-service:latest
+              command: ["python", "evaluate_thresholds.py"]
 ```
 
 ---
@@ -524,19 +550,20 @@ spec:
 
 ### Tables per service
 
-| Service | Owns | Access |
-|---------|------|--------|
-| **alert-service** | `alerts` | read/write |
-| **alert-subscription-service** | `alert_subscriptions` | read/write |
-| **alert-notification-service** | `alert_notifications` | read/write |
-| **sensor-threshold-mapping-service** | `sensor_threshold_map` | read/write |
-| **alert-evaluation-service** | — | read-only: `temperature_raw` |
-| **thresholds-service** | `thresholds` | read/write |
-| **location-service** | `locations`, `sensors` | read/write |
-| **realtime-service** | — | read-only: `temperature_raw` |
-| **aggregation-service** | — | read-only: `temperature_raw` |
+| Service                              | Owns                   | Access                       |
+| ------------------------------------ | ---------------------- | ---------------------------- |
+| **alert-service**                    | `alerts`               | read/write                   |
+| **alert-subscription-service**       | `alert_subscriptions`  | read/write                   |
+| **alert-notification-service**       | `alert_notifications`  | read/write                   |
+| **sensor-threshold-mapping-service** | `sensor_threshold_map` | read/write                   |
+| **alert-evaluation-service**         | —                      | read-only: `temperature_raw` |
+| **thresholds-service**               | `thresholds`           | read/write                   |
+| **location-service**                 | `locations`, `sensors` | read/write                   |
+| **realtime-service**                 | —                      | read-only: `temperature_raw` |
+| **aggregation-service**              | —                      | read-only: `temperature_raw` |
 
 **Rules:**
+
 - Each service writes only its own tables
 - Other tables are read via HTTP APIs only
 - Consistency enforced via service calls
@@ -546,6 +573,7 @@ spec:
 ## 🚀 Implementation phases
 
 ### Phase 1: Core (1–2 weeks)
+
 1. **sensor-threshold-mapping-service**
    - mapping CRUD
    - active mapping API
@@ -556,6 +584,7 @@ spec:
    - integrate mapping service
 
 ### Phase 2: Subscriptions & notifications (2–3 weeks)
+
 3. **alert-subscription-service**
    - subscription CRUD
    - location matching
@@ -566,12 +595,14 @@ spec:
    - history & retries
 
 ### Phase 3: Evaluation worker (1–2 weeks)
+
 5. **alert-evaluation-service**
    - scheduler/worker
    - scan `temperature_raw`
    - breach detection → alert-service
 
 ### Phase 4: Integration & tuning (1–2 weeks)
+
 6. **realtime-service**
    - remove inline threshold checks (moved to evaluation service)
    - simplify to read APIs
@@ -654,6 +685,7 @@ flet_montrg/
 ## 🔧 DB schema: `sensor_threshold_map`
 
 **Migration:**
+
 ```sql
 -- Add new column, backfill from hours, then drop old column
 ALTER TABLE flet_montrg.sensor_threshold_map
@@ -668,6 +700,7 @@ DROP COLUMN IF EXISTS duration_hours;
 ```
 
 **Resulting schema:**
+
 ```sql
 CREATE TABLE flet_montrg.sensor_threshold_map (
     map_id bigserial NOT NULL,
@@ -697,6 +730,7 @@ CREATE INDEX idx_stm_threshold ON flet_montrg.sensor_threshold_map
 ```
 
 **Example payload:**
+
 ```python
 # 1s = 1, 1m = 60, 5m = 300, 10m = 600, 30m = 1800, 1h = 3600, 24h = 86400
 

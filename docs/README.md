@@ -6,21 +6,21 @@ Project documentation lives under **`docs/`**. The root [README.md](../README.md
 
 ## 📂 Folder layout
 
-| Path | Purpose |
-|------|---------|
-| **[release/](./release/)** | Versioned release notes (`v1.0.0.md`, …) — **index:** [release/README.md](./release/README.md) |
-| **[proposals/](./proposals/)** | Design proposals (architecture, MSA, etc.) |
-| **[examples/](./examples/)** | API request/response examples |
+| Path                           | Purpose                                                                                        |
+| ------------------------------ | ---------------------------------------------------------------------------------------------- |
+| **[release/](./release/)**     | Versioned release notes (`v1.0.0.md`, …) — **index:** [release/README.md](./release/README.md) |
+| **[proposals/](./proposals/)** | Design proposals (architecture, MSA, etc.)                                                     |
+| **[examples/](./examples/)**   | API request/response examples                                                                  |
 
 ---
 
 ## 📑 Contents
 
-| Document | Description |
-|----------|-------------|
-| [release/README.md](./release/README.md) | Release notes index (links per version) |
-| [proposals/MSA_EXTENSION_PROPOSAL.md](./proposals/MSA_EXTENSION_PROPOSAL.md) | MSA extension & architecture proposal |
-| [examples/ALERT_API_EXAMPLES.md](./examples/ALERT_API_EXAMPLES.md) | Alert & notification API examples |
+| Document                                                                     | Description                             |
+| ---------------------------------------------------------------------------- | --------------------------------------- |
+| [release/README.md](./release/README.md)                                     | Release notes index (links per version) |
+| [proposals/MSA_EXTENSION_PROPOSAL.md](./proposals/MSA_EXTENSION_PROPOSAL.md) | MSA extension & architecture proposal   |
+| [examples/ALERT_API_EXAMPLES.md](./examples/ALERT_API_EXAMPLES.md)           | Alert & notification API examples       |
 
 ---
 
