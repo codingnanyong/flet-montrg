@@ -70,7 +70,7 @@ export const labels = {
     tableApisDesc: '마스터 데이터 · 설정 · 이력 API — 카드 클릭 시 Swagger 문서',
     swaggerUiCardDesc: 'API 문서 · 전체 서비스를 한 스펙에서',
     servicesIntegrated: '개 서비스 통합',
-    apiGatewayDesc: 'API Gateway — 통합 문서 및 프록시',
+    apiGatewayDesc: 'API Gateway — 통합 문서 · API 연동',
     noServices: '표시할 서비스가 없습니다. API 백엔드를 연결하거나 새로고침하세요.',
   },
   en: {
@@ -89,7 +89,7 @@ export const labels = {
     tableApisDesc: 'Master data · Config · History APIs — Click card for Swagger docs',
     swaggerUiCardDesc: 'API docs · All services in one spec',
     servicesIntegrated: 'services integrated',
-    apiGatewayDesc: 'API Gateway — Integrated docs and proxy',
+    apiGatewayDesc: 'API Gateway — Integrated docs and API routing',
     noServices: 'No services to show. Connect the API backend or use Refresh.',
   },
 };
