@@ -13,12 +13,10 @@ IoT sensor-based apparent temperature data monitoring and notification system.
 
 ## 📚 Documentation
 
-| Document | Description |
-|----------|-------------|
-| **[docs/README.md](docs/README.md)** | Documentation hub (index) |
-| [docs/release/README.md](docs/release/README.md) | Release notes index (per version) |
-| [docs/proposals/MSA_EXTENSION_PROPOSAL.md](docs/proposals/MSA_EXTENSION_PROPOSAL.md) | MSA extension & architecture proposal |
-| [docs/examples/ALERT_API_EXAMPLES.md](docs/examples/ALERT_API_EXAMPLES.md) | Alert & notification API examples |
+- **[docs/README.md](docs/README.md)** — Documentation hub (index)
+- [docs/release/README.md](docs/release/README.md) — Release notes index (per version)
+- [docs/proposals/MSA_EXTENSION_PROPOSAL.md](docs/proposals/MSA_EXTENSION_PROPOSAL.md) — MSA extension & architecture proposal
+- [docs/examples/ALERT_API_EXAMPLES.md](docs/examples/ALERT_API_EXAMPLES.md) — Alert & notification API examples
 | `services/*/README.md` | Per-service API & local run |
 
 Add new project-wide docs to the table in **`docs/README.md`** for easier onboarding.
@@ -61,18 +59,18 @@ flet-montrg/
 
 ## 🔌 Service Ports
 
-(순차 배치: 30000 web-service → 30009 sensor-threshold-mapping-service)
+(순차 배치: 30000 web-service → 30010 sensor-threshold-mapping-service, 30009는 예약)
 
 ### Web & Integrated
 
 - **30000**: web-service (Dashboard Web UI — Overview, Swagger; proxies to integrated-swagger)
-- **30001**: integrated-swagger-service (Integrated API documentation and proxy)
+- **30004**: integrated-swagger-service (Integrated API documentation and proxy)
 
 ### Data Services
 
-- **30002**: thresholds-service (Threshold CRUD API)
-- **30003**: location-service (Sensor location information API)
-- **30004**: realtime-service (Real-time status API)
+- **30001**: thresholds-service (Threshold CRUD API)
+- **30002**: location-service (Sensor location information API)
+- **30003**: realtime-service (Real-time status API)
 - **30005**: aggregation-service (Period query API)
 
 ### Alert Services
@@ -83,7 +81,7 @@ flet-montrg/
 
 ### Mapping Services
 
-- **30009**: sensor-threshold-mapping-service (Sensor-threshold mapping management)
+- **30010**: sensor-threshold-mapping-service (Sensor-threshold mapping management)
 
 ## 🎯 Key Features
 
@@ -157,9 +155,9 @@ cd k8s/web-service && ./deploy.sh
 
 ### Web UI & Integrated API
 
-- **Dashboard (recommended entry)**: http://<K8S_INGRESS>:30012/ — Overview + Swagger (web-service).
-- **Integrated Swagger only**: http://<K8S_INGRESS>:30001/ (integrated-swagger-service).
-- **Proxy API**: http://<K8S_INGRESS>:30001/api/{resource}/ or via web-service proxy.
+- **Dashboard (recommended entry)**: http://<K8S_INGRESS>:30000/ — Overview + Swagger (web-service).
+- **Integrated Swagger only**: http://<K8S_INGRESS>:30004/ (integrated-swagger-service).
+- **Proxy API**: http://<K8S_INGRESS>:30004/api/{resource}/ or via web-service proxy.
 
 | Path                  | Target service                     |
 |-----------------------|------------------------------------|
